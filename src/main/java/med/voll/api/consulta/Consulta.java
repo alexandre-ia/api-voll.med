@@ -52,4 +52,14 @@ public class Consulta {
         this.motivoCancelamento = null; // Valor padrão
     }
 
+    /**
+     * NOVO MÉTODO: Marca a consulta como inativa (cancelada) e registra o motivo.
+     * Esta é a "exclusão lógica" da sua regra de negócio para consultas.
+     * @param motivo O motivo do cancelamento, conforme a ENUM.
+     */
+    public void cancelar(MotivoCancelamento motivo) {
+        this.ativo = false; // Torna a consulta inativa
+        this.motivoCancelamento = motivo; // Registra o motivo do cancelamento
+    }
+
 }

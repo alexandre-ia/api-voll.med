@@ -2,11 +2,10 @@ package med.voll.api.consulta;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import med.voll.api.paciente.Paciente;
 
 import java.time.LocalDateTime;
 
-public record DadosCadastroConsulta(
+public record DadosAgendamentoConsulta(
         @NotNull // O paciente é obrigatório
         Long idPaciente,
 
