@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record DadosAgendamentoConsulta(
-        @NotNull // O paciente é obrigatório
+        @NotNull
         Long idPaciente,
 
         // O médico é opcional na sua regra, então não deve ter @NotNull
