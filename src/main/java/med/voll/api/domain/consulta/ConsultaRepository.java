@@ -1,4 +1,4 @@
-package med.voll.api.consulta;
+package med.voll.api.domain.consulta;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

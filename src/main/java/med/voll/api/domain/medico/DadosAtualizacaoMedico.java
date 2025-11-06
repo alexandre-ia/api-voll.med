@@ -1,6 +1,6 @@
-package med.voll.api.medico;
+package med.voll.api.domain.medico;
 
-import med.voll.api.endereco.DadosEndereco;
+import med.voll.api.domain.endereco.DadosEndereco;
 import org.antlr.v4.runtime.misc.NotNull;
 
 public record DadosAtualizacaoMedico(
