@@ -91,6 +91,7 @@ O `DisponibilidadeMedicoController` acessa os repositories diretamente, sem uma 
 | V14–V20 | Prescrições, triagem, retorno, atestados, convênios, auditoria LGPD, JPA auditing |
 | V21 | Especialidade como tabela (`especialidades`), migração de FK em `medicos` |
 | V22 | Tabela `medico_convenios` (N:N médico ↔ convênio) |
+| V23 | Ampliação de `pacientes.telefone` de `CHAR(11)` para `VARCHAR(20)` |
 
 Migrations são imutáveis após aplicadas em qualquer ambiente. Para corrigir uma migration já aplicada, criar uma nova.
 

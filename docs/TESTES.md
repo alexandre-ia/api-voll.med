@@ -1,12 +1,15 @@
 # Testes Automatizados — API Voll.med
 
-Suite com **89 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
+Suite com **125 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
 
 ---
 
 ## Como executar
 
 ```bash
+# Entrar no backend a partir da raiz
+cd backend
+
 # Suite completa
 ./mvnw test
 
@@ -43,6 +46,7 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 
 | Classe | Testes | O que cobre |
 |--------|--------|-------------|
+| `ApiApplicationTests` | 1 | Inicialização do contexto Spring Boot com H2 e configurações de teste |
 | `AgendaDeConsultasTest` | 17 | Todas as validações de agendamento (horário, antecedência, disponibilidade, convênio) e cancelamento |
 | `ProntuarioServiceTest` | 7 | Criação (403/409/400), edição (422 janela expirada, 403 médico errado), 404 |
 | `EspecialidadeServiceTest` | 8 | CRUD, nome duplicado (409), inativação |
@@ -52,14 +56,18 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 
 | Classe | Testes | O que cobre |
 |--------|--------|-------------|
-| `ConsultaControllerTest` | 6 | Agendar (FUNCIONARIO), cancelar (FUNCIONARIO), listar, 403 para MEDICO |
-| `MedicoControllerTest` | 6 | CRUD, 401 sem auth, 403 para MEDICO |
-| `PacientesControllerTest` | 8 | CRUD, 401 sem auth, 403 para MEDICO em endpoints restritos |
-| `ProntuarioControllerTest` | 9 | Criar/editar (MEDICO), deletar (ADMIN), listar/detalhar (qualquer auth), 403 |
-| `PrescricaoControllerTest` | 5 | Criar (MEDICO), detalhar/listar (qualquer auth), 403, 401 |
-| `AtestadoControllerTest` | 5 | Emitir (MEDICO), detalhar/listar (qualquer auth), 403, 401 |
-| `EspecialidadeControllerTest` | 7 | CRUD (ADMIN), listar/detalhar (qualquer auth), 403 para FUNCIONARIO |
-| `AutenticacaoControllerTest` | 5 | Login (200+token), cadastro (ADMIN), bloquear ADMIN duplicado (403), login duplicado (409), 403 para FUNCIONARIO |
+| `AtestadoControllerTest` | 6 | Emitir (MEDICO), detalhar/listar, 403, 401 |
+| `AuditoriaControllerTest` | 3 | Acesso à trilha LGPD restrito a AUDITOR/GESTOR |
+| `AutenticacaoControllerTest` | 7 | Login (200+token), cadastro/listagem de usuários (ADMIN), bloqueios por role, login duplicado |
+| `ConsultaControllerTest` | 7 | Agendar/cancelar (FUNCIONARIO), listar por roles, 403 para ações indevidas |
+| `ConvenioControllerTest` | 10 | CRUD de convênios, paginação, permissões por role |
+| `ConvenioPacienteControllerTest` | 6 | Associar/listar/remover convênio do paciente e permissões |
+| `EspecialidadeControllerTest` | 10 | CRUD (FUNCIONARIO), listar/detalhar por roles, bloqueios |
+| `MedicoControllerTest` | 8 | CRUD, 401 sem auth, 403 para MEDICO em escrita e 403 para ADMIN na leitura operacional |
+| `MedicoConvenioControllerTest` | 4 | Vincular/listar/remover convênios aceitos pelo médico |
+| `PacientesControllerTest` | 10 | CRUD, listagem/detalhamento filtrado, 401 sem auth, 403 em endpoints restritos |
+| `PrescricaoControllerTest` | 6 | Criar (MEDICO), detalhar/listar, 403, 401 |
+| `ProntuarioControllerTest` | 11 | Criar/editar (MEDICO), inativar (AUDITOR/GESTOR), listar/detalhar por roles, 403 |
 
 ---
 
@@ -75,12 +83,14 @@ public class MethodSecurityTestConfig {}
 
 Necessário porque `@WebMvcTest` não garante que `@EnableMethodSecurity` seja ativado. Sem isso, `@PreAuthorize` é ignorado.
 
-### `src/test/resources/application.properties`
+### `backend/src/test/resources/application.properties`
 
 ```properties
 spring.datasource.url=jdbc:h2:mem:testdb
+spring.config.import=
 spring.flyway.enabled=false
 spring.jpa.hibernate.ddl-auto=create-drop
+api.security.token.secret=testSecretKeyForTestingPurposesAtLeast32Chars
 ```
 
 H2 em memória. Flyway desabilitado — algumas migrations usam sintaxe MySQL incompatível com H2. O schema é criado pelo Hibernate a partir das entidades JPA.

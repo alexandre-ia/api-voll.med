@@ -1,284 +1,125 @@
 # Arquitetura Frontend — Voll.med
 
-React 18 + TypeScript + Vite. SPA com roteamento client-side. Comunicação com backend Spring Boot via Axios.
+Frontend SPA em React 19 + TypeScript + Vite 7. A comunicação com o backend Spring Boot é feita via Axios com interceptor JWT.
 
----
+## Stack
 
-## Estrutura de Pastas
+- React 19
+- TypeScript 5.6
+- Vite 7
+- TailwindCSS v4 via `@tailwindcss/vite`
+- shadcn/ui sobre Radix UI
+- wouter para roteamento client-side
+- Axios para HTTP
+- React Hook Form + Zod para formulários e validação
+- Sonner para toasts
+- Recharts para gráficos
+- Lucide React para ícones
 
-```
-frontend/
-├── public/
-│   └── favicon.ico
-├── src/
-│   ├── api/
-│   │   ├── axios.ts              # instância Axios com interceptores
-│   │   ├── auth.ts               # login, logout
-│   │   ├── medicos.ts            # CRUD médicos
-│   │   ├── pacientes.ts          # CRUD pacientes
-│   │   ├── consultas.ts          # agendamento, cancelamento
-│   │   ├── prontuarios.ts        # prontuários
-│   │   ├── prescricoes.ts        # prescrições
-│   │   ├── atestados.ts          # atestados
-│   │   ├── especialidades.ts     # especialidades
-│   │   ├── convenios.ts          # convênios
-│   │   └── ia.ts                 # IA clínica
-│   ├── components/
-│   │   ├── ui/                   # primitivos reutilizáveis
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   ├── Badge.tsx
-│   │   │   ├── Card.tsx
-│   │   │   ├── Spinner.tsx
-│   │   │   ├── Modal.tsx
-│   │   │   ├── Table.tsx
-│   │   │   ├── Pagination.tsx
-│   │   │   └── EmptyState.tsx
-│   │   └── layout/
-│   │       ├── Layout.tsx        # wrapper sidebar + main
-│   │       ├── Sidebar.tsx
-│   │       └── NavItem.tsx
-│   ├── contexts/
-│   │   └── AuthContext.tsx       # token JWT, user, login(), logout()
-│   ├── hooks/
-│   │   ├── useAuth.ts            # acesso ao AuthContext
-│   │   └── usePageTitle.ts       # seta document.title
-│   ├── pages/
-│   │   ├── Login.tsx
-│   │   ├── Dashboard.tsx
-│   │   ├── medicos/
-│   │   │   ├── MedicosPage.tsx   # listagem
-│   │   │   └── MedicoForm.tsx    # cadastro/edição
-│   │   ├── pacientes/
-│   │   ├── consultas/
-│   │   ├── prontuarios/
-│   │   ├── prescricoes/
-│   │   ├── atestados/
-│   │   ├── especialidades/
-│   │   ├── convenios/
-│   │   └── ia/
-│   ├── routes/
-│   │   ├── AppRouter.tsx         # todas as rotas
-│   │   └── PrivateRoute.tsx      # guard: redireciona para /login sem token
-│   ├── types/
-│   │   ├── auth.ts
-│   │   ├── medico.ts
-│   │   ├── paciente.ts
-│   │   ├── consulta.ts
-│   │   ├── prontuario.ts
-│   │   ├── prescricao.ts
-│   │   ├── atestado.ts
-│   │   ├── especialidade.ts
-│   │   ├── convenio.ts
-│   │   └── common.ts             # Page<T>, ApiError
-│   ├── utils/
-│   │   ├── jwt.ts                # decodificar payload do JWT
-│   │   ├── date.ts               # formatação de datas (pt-BR)
-│   │   └── masks.ts              # CPF, telefone, CEP
-│   ├── main.tsx
-│   └── index.css
-├── docs/                         # esta pasta
-├── tailwind.config.ts
-├── vite.config.ts
-├── tsconfig.json
-└── package.json
+## Estrutura Real
+
+```text
+frontend/src/
+├── api/               # Axios e módulos por domínio
+├── components/        # Layout, componentes compartilhados e shadcn/ui
+├── contexts/          # AuthContext, ThemeContext
+├── hooks/             # useAuth, useMobile
+├── lib/               # utils, RBAC e helpers
+├── pages/             # Páginas de rota
+├── types/             # Tipos de auth, API e auditoria
+├── App.tsx            # Router wouter + providers
+├── const.ts
+├── index.css          # Tailwind v4 + tokens CSS
+└── main.tsx
 ```
 
----
+## Módulos de API
 
-## Camada de API (`src/api/`)
+Arquivos atuais em `frontend/src/api/`:
 
-### axios.ts
+- `axios.ts` — instância Axios com interceptors de JWT e tratamento de 401.
+- `auth.ts` — login e usuários.
+- `medicos.ts` — médicos.
+- `pacientes.ts` — pacientes.
+- `consultas.ts` — consultas.
+- `prontuarios.ts` — prontuários.
+- `prescricoes.ts` — prescrições.
+- `atestados.ts` — atestados.
+- `especialidades.ts` — especialidades.
+- `convenios.ts` — convênios.
+- `disponibilidade.ts` — disponibilidade de médicos.
+- `medicoConvenios.ts` — convênios aceitos por médicos.
+- `convenioPaciente.ts` — convênios vinculados a pacientes.
+- `auditoria.ts` — auditoria LGPD.
 
-```ts
-import axios from 'axios'
+Ainda não existe módulo `ia.ts`; a interface de IA clínica está pendente.
 
-const api = axios.create({ baseURL: 'http://localhost:8080' })
+## Autenticação
 
-// Injeta token em toda requisição
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+- `AuthContext` mantém token JWT em `localStorage`.
+- `useAuth` expõe usuário autenticado, role, login e logout.
+- `api/axios.ts` injeta `Authorization: Bearer <token>` em cada requisição.
+- Resposta 401 redireciona para `/login`.
 
-// 401 → logout
-api.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
-    }
-    return Promise.reject(error)
-  }
-)
+## Rotas
 
-export default api
-```
+Rotas atuais em `App.tsx`:
 
-### Padrão de função de API
+| Path | Página | Guarda |
+|------|--------|--------|
+| `/login` | `Login` | Pública |
+| `/` | `Dashboard` | Privada, exceto ADMIN/AUDITOR/GESTOR redirecionados |
+| `/users` | `Users` | Privada |
+| `/doctors` | `Doctors` | Privada |
+| `/patients` | `Patients` | Privada, não ADMIN |
+| `/appointments` | `Appointments` | Privada, não ADMIN |
+| `/medical-records` | `MedicalRecords` | Privada, não ADMIN |
+| `/prescriptions` | `Prescriptions` | Privada, não ADMIN |
+| `/certificates` | `Certificates` | Privada, não ADMIN |
+| `/specialties` | `Specialties` | Privada, não ADMIN |
+| `/insurance` | `Insurance` | Privada, não ADMIN |
+| `/availability` | `Availability` | Privada, não ADMIN |
+| `/audit` | `Audit` | Apenas `ROLE_AUDITOR`/`ROLE_GESTOR` |
+| `/404` | `NotFound` | Pública |
 
-```ts
-// src/api/medicos.ts
-import api from './axios'
-import type { Medico, DadosCadastroMedico, Page } from '../types/medico'
+A segurança real é aplicada pelo backend. As guardas do frontend servem para UX e navegação.
 
-export const medicos = {
-  listar: (page = 0, size = 10) =>
-    api.get<Page<Medico>>(`/medicos?page=${page}&size=${size}`).then(r => r.data),
+## RBAC no Frontend
 
-  detalhar: (id: number) =>
-    api.get<Medico>(`/medicos/${id}`).then(r => r.data),
+- `ROLE_ADMIN` é direcionado para `/users`.
+- `ROLE_AUDITOR` e `ROLE_GESTOR` são direcionados para `/audit`.
+- `ROLE_MEDICO` não vê navegação para usuários, especialidades, convênios e auditoria.
+- Demais regras finas ficam nos botões e nas respostas 403 do backend.
 
-  cadastrar: (dados: DadosCadastroMedico) =>
-    api.post<Medico>('/medicos', dados).then(r => r.data),
+## Estado Atual das Páginas
 
-  atualizar: (dados: Partial<DadosCadastroMedico>) =>
-    api.put<Medico>('/medicos', dados).then(r => r.data),
+Páginas conectadas à API real:
 
-  excluir: (id: number) =>
-    api.delete(`/medicos/${id}`),
-}
-```
+- Dashboard
+- Doctors
+- Patients
+- Appointments
+- MedicalRecords
+- Prescriptions
+- Certificates
+- Specialties
+- Insurance
+- Users
+- Availability
+- Audit
 
----
+Pendente:
 
-## AuthContext
+- IA clínica no frontend (`/ia` ou integração no prontuário a definir).
 
-```ts
-interface AuthContextType {
-  token: string | null
-  user: {
-    login: string;
-    role: 'ROLE_ADMIN' | 'ROLE_FUNCIONARIO' | 'ROLE_MEDICO' | 'ROLE_AUDITOR' | 'ROLE_GESTOR'
-  } | null
-  isAuthenticated: boolean
-  login: (login: string, senha: string) => Promise<void>
-  logout: () => void
-}
-```
+## Tailwind v4
 
-Token salvo em `localStorage`. Role extraída do payload JWT (base64 decode, campo `role`).
+O projeto usa TailwindCSS v4 via plugin do Vite. Não há `tailwind.config.ts` como fonte principal de tokens; as variáveis de tema ficam em `src/index.css`.
 
----
+## Convenções
 
-## Tipagem (`src/types/`)
-
-### common.ts — tipos globais
-
-```ts
-export interface Page<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number   // página atual
-  size: number
-}
-
-export interface ApiError {
-  message?: string
-  [field: string]: string | undefined
-}
-```
-
-### Padrão por entidade
-
-Cada arquivo de tipo exporta:
-- Interface da entidade completa (response da API)
-- Interface de cadastro (`Dados*Cadastro`)
-- Interface de atualização (`Dados*Atualizacao`)
-- Interface de listagem simplificada (`Dados*Listagem`) quando necessário
-
----
-
-## Roteamento
-
-```tsx
-// AppRouter.tsx
-<Routes>
-  <Route path="/login" element={<Login />} />
-  <Route element={<PrivateRoute />}>
-    <Route element={<Layout />}>
-      <Route element={<RoleRoute roles={adminRoles} />}>
-        <Route path="/usuarios" element={<UsuariosPage />} />
-      </Route>
-      <Route element={<RoleRoute roles={clinicalRoles} />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/medicos" element={<MedicosPage />} />
-        <Route path="/pacientes" element={<PacientesPage />} />
-        <Route path="/consultas" element={<ConsultasPage />} />
-        <Route path="/prontuarios" element={<ProntuariosPage />} />
-        <Route path="/especialidades" element={<EspecialidadesPage />} />
-      </Route>
-      <Route element={<RoleRoute roles={['ROLE_FUNCIONARIO']} />}>
-        <Route path="/convenios" element={<ConveniosPage />} />
-      </Route>
-      <Route element={<RoleRoute roles={['ROLE_MEDICO']} />}>
-        <Route path="/ia" element={<IaPage />} />
-      </Route>
-    </Route>
-  </Route>
-  <Route path="*" element={<Navigate to="/" replace />} />
-</Routes>
-```
-
-`PrivateRoute` garante autenticação. `RoleRoute` aplica RBAC no client-side para experiência de navegação: `ROLE_ADMIN` acessa `/usuarios`, perfis clínicos acessam as telas assistenciais, `ROLE_FUNCIONARIO` acessa convênios e `ROLE_MEDICO` acessa IA clínica. A segurança real continua no backend.
-
----
-
-## Gerenciamento de Estado
-
-**Sem Redux/Zustand.** Estado local com `useState` + contexto apenas para auth.
-
-| Dado | Onde fica |
-|------|-----------|
-| Token JWT | `AuthContext` + `localStorage` |
-| Lista paginada de médicos | `useState` na `MedicosPage` |
-| Form de cadastro | `react-hook-form` local |
-| Loading/error de fetch | `useState` local |
-
-Se a complexidade crescer, adotar **TanStack Query** (não Zustand — o backend tem paginação e cache server-side faz mais sentido).
-
----
-
-## Paginação
-
-O backend retorna `Page<T>` com `content`, `totalElements`, `totalPages`, `number`.
-
-O componente `<Pagination />` recebe:
-```ts
-interface PaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
-}
-```
-
----
-
-## Formatação
-
-```ts
-// src/utils/date.ts
-export const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR')
-
-export const formatDateTime = (iso: string) =>
-  new Date(iso).toLocaleString('pt-BR')
-
-// src/utils/masks.ts
-export const formatCPF = (cpf: string) =>
-  cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-```
-
----
-
-## Convenções de Código
-
-- Componentes: PascalCase (`MedicosPage.tsx`)
-- Funções/hooks: camelCase (`useAuth`, `formatDate`)
-- Tipos/interfaces: PascalCase (`Medico`, `DadosCadastroMedico`)
-- Arquivos de API: camelCase plural (`medicos.ts`, `consultas.ts`)
-- Props de componentes: sempre tipar com interface explícita (nunca `any`)
-- Imports: absolutos via `@/` (configurar no tsconfig + vite.config)
+- Componentes e páginas em PascalCase.
+- Arquivos de API em camelCase.
+- Imports absolutos via `@/`.
+- Tipos compartilhados em `src/types/`.
+- Evitar `any` em contratos de API.

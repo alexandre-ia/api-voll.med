@@ -298,23 +298,20 @@ GET /ia/resumo-historico/{paciente_id}
 
 ## Gaps do Frontend
 
-Backend completo. Frontend parcialmente conectado — os itens abaixo têm controller e migration mas **sem página/rota no frontend**.
+Backend completo. Frontend conectado à API real na maior parte dos módulos.
 
-| Controller | API Module (`frontend/src/api/`) | Página | Prioridade |
+| Controller | API Module (`frontend/src/api/`) | Página/Rota | Status |
 |---|---|---|---|
-| `DisponibilidadeMedicoController` | `disponibilidade.ts` ✅ | ❌ sem página nem rota | Alta — módulo API já existe |
-| `MedicoConvenioController` | ❌ | ❌ | Média — pode ser aba em `/doctors` |
-| `ConvenioPacienteController` | ❌ | ❌ | Média — pode ser aba em `/patients` |
-| `AuditoriaController` | ❌ | ❌ | Baixa — tela restrita a `ROLE_ADMIN` |
-| `IaController` | ❌ | ❌ | Baixa — maior esforço, UX a definir |
+| `DisponibilidadeMedicoController` | `disponibilidade.ts` ✅ | `/availability` ✅ | Implementado |
+| `MedicoConvenioController` | `medicoConvenios.ts` ✅ | Integrado à área de médicos/convênios ✅ | Implementado |
+| `ConvenioPacienteController` | `convenioPaciente.ts` ✅ | Integrado à área de pacientes/convênios ✅ | Implementado |
+| `AuditoriaController` | `auditoria.ts` ✅ | `/audit` ✅ | Implementado para `ROLE_AUDITOR`/`ROLE_GESTOR` |
+| `IaController` | ❌ | ❌ | Pendente |
 
-### Ordem sugerida de implementação
+### Próxima implementação sugerida
 
-1. **Disponibilidade do médico** — criar página `/availability`, listar/criar/remover horários por médico. Módulo `disponibilidade.ts` já existe.
-2. **Convênios do médico** — adicionar aba ou modal em `/doctors` usando `MedicoConvenioController`.
-3. **Convênios do paciente** — adicionar aba ou modal em `/patients` usando `ConvenioPacienteController`.
-4. **Auditoria** — página `/audit` visível apenas para `ROLE_ADMIN`, exibe log de acessos ao prontuário.
-5. **IA** — definir UX (painel dentro de prontuário? página separada?), criar `api/ia.ts`, implementar as três features (pré-diagnóstico, laudo, resumo histórico).
+1. **IA clínica no frontend** — definir UX (painel dentro do prontuário ou página separada), criar `frontend/src/api/ia.ts` e implementar as três features: pré-diagnóstico, geração de laudo e resumo histórico.
+2. **Validação do frontend** — instalar dependências e rodar `npm run check`/`npm run build` para confirmar o estado real do TypeScript.
 
 ---
 

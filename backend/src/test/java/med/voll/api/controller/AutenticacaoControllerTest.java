@@ -2,6 +2,7 @@ package med.voll.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import med.voll.api.config.MethodSecurityTestConfig;
+import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.domain.usuario.*;
 import med.voll.api.infra.security.TokenService;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,7 @@ class AutenticacaoControllerTest {
     @MockBean AuthenticationManager authenticationManager;
     @MockBean TokenService tokenService;
     @MockBean UsuarioRepository usuarioRepository;
+    @MockBean MedicoRepository medicoRepository;
     @MockBean PasswordEncoder passwordEncoder;
     @MockBean JpaMetamodelMappingContext jpaMetamodelMappingContext;
 

@@ -10,7 +10,7 @@ Sistema Fullstack para gerenciamento de clínica médica, desenvolvido a partir 
 * Backend em Spring Boot com regras de negócio avançadas
 * Frontend em React em desenvolvimento
 * Integração com IA clínica (Anthropic API)
-* 89 testes automatizados
+* 125 testes automatizados no backend
 * Arquitetura organizada e documentada
 
 ---
@@ -41,7 +41,7 @@ O projeto começou como uma API simples de gerenciamento de clínica, mas foi ex
 
 O sistema possui um serviço dedicado para integração com IA:
 
-📄 `src/main/java/med/voll/api/service/IaService.java`
+📄 `backend/src/main/java/med/voll/api/service/IaService.java`
 
 Atualmente implementa:
 
@@ -79,9 +79,9 @@ O frontend está em desenvolvimento e segue uma arquitetura definida:
 
 Tecnologias:
 
-* React 18
+* React 19
 * TypeScript
-* Vite
+* Vite 7
 * Tailwind CSS
 
 Objetivo:
@@ -141,7 +141,7 @@ Inclui:
 
 ```bash
 .
-├── src/            # Backend
+├── backend/        # Backend Spring Boot
 ├── frontend/       # Frontend React
 ├── docs/           # Documentação técnica
 ├── docker-compose.yml
@@ -155,12 +155,13 @@ Inclui:
 ### 1. Subir banco
 
 ```bash
-docker-compose up -d
+docker compose --env-file backend/.env up -d
 ```
 
 ### 2. Rodar backend
 
 ```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 
@@ -177,10 +178,11 @@ npm run dev
 ## 🧪 Testes
 
 ```bash
+cd backend
 ./mvnw test
 ```
 
-✔️ Suite atual: **89 testes**
+✔️ Suite atual do backend: **125 testes**
 
 ---
 
@@ -199,7 +201,7 @@ Perfis principais:
 * `ROLE_AUDITOR`
 * `ROLE_GESTOR`
 
-`ROLE_ADMIN` fica voltado à administração técnica e cadastro de usuários. Cadastros operacionais, convênios e parâmetros assistenciais ficam com `ROLE_FUNCIONARIO`; a leitura ampla de dados clínicos sensíveis e trilhas de auditoria fica separada em `ROLE_AUDITOR`/`ROLE_GESTOR`.
+`ROLE_ADMIN` fica voltado à administração técnica e cadastro/listagem de usuários. Cadastros operacionais, convênios e parâmetros assistenciais ficam com `ROLE_FUNCIONARIO`; a leitura ampla de dados clínicos sensíveis e trilhas de auditoria fica separada em `ROLE_AUDITOR`/`ROLE_GESTOR`.
 
 ---
 

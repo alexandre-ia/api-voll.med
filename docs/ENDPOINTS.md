@@ -17,6 +17,7 @@ Perfis recomendados para ambiente profissional:
 |--------|----------|-----------|-------|
 | `POST` | `/auth/login` | Autenticar e obter JWT | Público |
 | `POST` | `/auth/cadastro` | Criar novo usuário operacional (`FUNCIONARIO`, `MEDICO`, `AUDITOR` ou `GESTOR`) | ADMIN |
+| `GET` | `/auth/usuarios` | Listar usuários cadastrados (paginado) | ADMIN |
 
 ---
 
@@ -39,10 +40,10 @@ Perfis recomendados para ambiente profissional:
 | `POST` | `/medicos` | Cadastrar médico | FUNCIONARIO |
 | `GET` | `/medicos` | Listar médicos ativos (paginado) | FUNCIONARIO, MEDICO, AUDITOR/GESTOR |
 | `GET` | `/medicos/{id}` | Detalhar médico | FUNCIONARIO, MEDICO, AUDITOR/GESTOR |
-| `PUT` | `/medicos/{id}` | Atualizar médico | FUNCIONARIO |
+| `PUT` | `/medicos` | Atualizar médico (ID no body) | FUNCIONARIO |
 | `DELETE` | `/medicos/{id}` | Inativar médico (exclusão lógica) | FUNCIONARIO |
 | `POST` | `/medicos/{id}/disponibilidade` | Cadastrar horários de disponibilidade | FUNCIONARIO |
-| `GET` | `/medicos/{id}/disponibilidade` | Listar horários de disponibilidade | FUNCIONARIO, MEDICO, AUDITOR/GESTOR |
+| `GET` | `/medicos/{id}/disponibilidade` | Listar horários de disponibilidade | Qualquer usuário autenticado |
 | `DELETE` | `/medicos/{id}/disponibilidade/{dispId}` | Remover horário de disponibilidade | FUNCIONARIO |
 
 ---
@@ -54,7 +55,7 @@ Perfis recomendados para ambiente profissional:
 | `POST` | `/pacientes` | Cadastrar paciente | FUNCIONARIO |
 | `GET` | `/pacientes` | Listar pacientes ativos (paginado) | FUNCIONARIO, AUDITOR/GESTOR; MEDICO apenas pacientes vinculados |
 | `GET` | `/pacientes/{id}` | Detalhar paciente | FUNCIONARIO, AUDITOR/GESTOR; MEDICO apenas pacientes vinculados |
-| `PUT` | `/pacientes/{id}` | Atualizar paciente | FUNCIONARIO |
+| `PUT` | `/pacientes` | Atualizar paciente (ID no body) | FUNCIONARIO |
 | `DELETE` | `/pacientes/{id}` | Inativar paciente (exclusão lógica) | FUNCIONARIO |
 
 ---
@@ -99,7 +100,8 @@ Perfis recomendados para ambiente profissional:
 | `POST` | `/prontuarios` | Criar prontuário vinculado a uma consulta | MEDICO (da consulta) |
 | `GET` | `/prontuarios/{id}` | Detalhar prontuário | FUNCIONARIO (leitura operacional), AUDITOR/GESTOR, MEDICO* |
 | `GET` | `/prontuarios/paciente/{id}` | Histórico clínico do paciente | FUNCIONARIO (leitura operacional), AUDITOR/GESTOR, MEDICO* |
-| `PUT` | `/prontuarios/{id}` | Editar prontuário (janela de 24h) | MEDICO (criador, dentro de 24h) |
+| `GET` | `/prontuarios` | Listar prontuários ativos (paginado) | FUNCIONARIO (leitura operacional), AUDITOR/GESTOR, MEDICO* |
+| `PUT` | `/prontuarios` | Editar prontuário (ID no body, janela de 24h) | MEDICO (criador, dentro de 24h) |
 | `DELETE` | `/prontuarios/{id}` | Inativar prontuário | AUDITOR/GESTOR |
 
 > *MEDICO vê apenas prontuários de suas próprias consultas.
@@ -215,7 +217,7 @@ Perfis recomendados para ambiente profissional:
 
 | Método | Endpoint | Descrição | Roles |
 |--------|----------|-----------|-------|
-| `GET` | `/auditoria/**` | Consultar trilhas de acesso e eventos sensíveis | AUDITOR/GESTOR |
+| `GET` | `/auditoria/prontuarios/{prontuarioId}` | Consultar trilha de acesso de um prontuário | AUDITOR/GESTOR |
 
 `ROLE_ADMIN` pode cadastrar usuários operacionais, mas não deve consultar conteúdo clínico, trilhas clínicas ou cadastros operacionais por padrão.
 

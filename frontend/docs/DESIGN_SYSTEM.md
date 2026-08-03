@@ -38,7 +38,7 @@ Estilo: **Neutral Warm** — tons quentes, não cansa com uso prolongado, fora d
 ### Uso em Tailwind
 
 ```tsx
-// Correto — usar tokens definidos no tailwind.config.ts
+// Correto — usar tokens definidos em src/index.css (TailwindCSS v4)
 <button className="bg-accent hover:bg-accent-hover text-white">
 <p className="text-text-secondary">
 <div className="bg-surface border border-border">
@@ -109,7 +109,7 @@ Borda padrão: `border border-border` → `1px solid #D4CCC4`
 | `shadow-lg` | Modais, painéis flutuantes |
 
 ```ts
-// tailwind.config.ts
+// src/index.css / tokens CSS
 boxShadow: {
   sm: '0 1px 3px rgba(28,25,23,0.06)',
   md: '0 4px 12px rgba(28,25,23,0.08)',

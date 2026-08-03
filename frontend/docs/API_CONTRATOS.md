@@ -38,6 +38,12 @@ Perfis de acesso recomendados:
 // Response 403 — tentativa de criar ROLE_ADMIN
 ```
 
+### GET /auth/usuarios (ROLE_ADMIN)
+```ts
+// Response 200 — Page<UsuarioDetalhamento>
+{ content: Array<{ id: number, login: string, role: string }>, totalElements: number, totalPages: number, number: number, size: number }
+```
+
 ---
 
 ## Especialidades

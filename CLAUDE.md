@@ -23,7 +23,7 @@ cd backend && ./mvnw test -Dtest=NomeDaClasseTest
 
 ## Variáveis de ambiente (.env)
 
-A aplicação lê `.env` via `spring.config.import=optional:file:../.env[.properties]` (caminho relativo à raiz do projeto). O padrão do projeto é: variável no `.env` → mapeada em `application.properties` → lida via `@Value`.
+A aplicação lê `.env` via `spring.config.import=optional:file:.env[.properties]`. Como os comandos do backend são executados dentro de `backend/`, o arquivo esperado é `backend/.env`. O padrão do projeto é: variável no `.env` → mapeada em `application.properties` → lida via `@Value`.
 
 | Variável no .env | Propriedade Spring | Descrição |
 |------------------|--------------------|-----------|
@@ -86,7 +86,7 @@ Logs para acompanhar:
 ### Banco de dados
 
 - `ddl-auto=validate` — Hibernate valida o schema mas não o altera; toda mudança estrutural exige migration Flyway
-- Migrations em `src/main/resources/db/migration/` com prefixo `V{n}__descricao.sql`
+- Migrations em `backend/src/main/resources/db/migration/` com prefixo `V{n}__descricao.sql`
 - Última migration aplicada: `V23` — próxima será `V24`
 - Exclusão lógica via campo `ativo` em médicos, pacientes e consultas
 

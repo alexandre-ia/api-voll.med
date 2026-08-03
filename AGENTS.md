@@ -4,12 +4,14 @@
 
 ```bash
 # Start MySQL (required) - wait for "healthy" status before running app
-docker-compose up -d
+docker compose --env-file backend/.env up -d
 
 # Run application
+cd backend
 ./mvnw spring-boot:run
 
 # Run tests
+cd backend
 ./mvnw test
 ```
 
@@ -17,7 +19,7 @@ docker-compose up -d
 
 - **Framework**: Spring Boot 3.5.4, Java 17, Maven
 - **Database**: MySQL 8.0 on port 3307 (via Docker)
-- **Migrations**: Flyway in `src/main/resources/db/migration/`
+- **Migrations**: Flyway in `backend/src/main/resources/db/migration/`
 - **Auth**: JWT via `/login` (public); other endpoints require Bearer token
 - **Soft deletes**: Entities use `ativo` field, not physical deletes
 - **Pagination**: 10 records per page (default)
@@ -30,19 +32,19 @@ docker-compose up -d
 
 ## Migrations applied
 
-V1–V22 applied (next: V23)
+V1–V23 applied (next: V24)
 
 ## Tests
 
-89 tests passing. Run: `./mvnw test`
+125 tests passing. Run from `backend/`: `./mvnw test`
 
-- Unit: `AgendaDeConsultasTest` (17), `ProntuarioServiceTest` (7), `EspecialidadeServiceTest` (8), `IaServiceTest` (4)
-- Controller (`@WebMvcTest`): `ConsultaControllerTest`, `MedicoControllerTest`, `PacientesControllerTest`, `ProntuarioControllerTest`, `PrescricaoControllerTest`, `AtestadoControllerTest`, `EspecialidadeControllerTest`, `AutenticacaoControllerTest`
+- Unit/context: `ApiApplicationTests` (1), `AgendaDeConsultasTest` (17), `ProntuarioServiceTest` (7), `EspecialidadeServiceTest` (8), `IaServiceTest` (4)
+- Controller (`@WebMvcTest`): `ConsultaControllerTest`, `MedicoControllerTest`, `PacientesControllerTest`, `ProntuarioControllerTest`, `PrescricaoControllerTest`, `AtestadoControllerTest`, `EspecialidadeControllerTest`, `AutenticacaoControllerTest`, `ConvenioControllerTest`, `ConvenioPacienteControllerTest`, `MedicoConvenioControllerTest`, `AuditoriaControllerTest`
 - See `docs/TESTES.md` for full strategy
 
 ## Gotchas
 
-- `.env` file must exist for DB connection (DB_PASSWORD=root)
+- `backend/.env` file must exist for backend configuration and Docker Compose command above (DB_PASSWORD=root)
 - JWT_SECRET defaults to weak `12345678` - override in production
 - MySQL container needs password: `DB_PASSWORD=root` in `.env`
 - Test database uses H2 in-memory (configured in spring-boot-starter-test)
