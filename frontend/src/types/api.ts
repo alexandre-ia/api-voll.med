@@ -264,6 +264,21 @@ export interface DisponibilidadeCadastro {
   horaFim: string
 }
 
+// --- IA clínica ---
+export interface IaPreDiagnosticoPayload {
+  consultaId: number
+  sintomas: string
+}
+
+export interface IaGerarLaudoPayload {
+  prontuarioId: number
+  anotacoes: string
+}
+
+export interface IaResposta {
+  resposta: string
+}
+
 export interface ConsultaListagem {
   id: number
   nomeMedico: string

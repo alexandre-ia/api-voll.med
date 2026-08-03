@@ -13,6 +13,7 @@ import Insurance from "@/pages/Insurance";
 import Users from "@/pages/Users";
 import Availability from "@/pages/Availability";
 import Audit from "@/pages/Audit";
+import ClinicalAI from "@/pages/ClinicalAI";
 import Login from "@/pages/Login";
 import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -41,6 +42,13 @@ function AuditorRoute({ component: Component }: { component: React.ComponentType
   return <Component />;
 }
 
+function MedicoRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Redirect to="/login" />;
+  if (user?.role !== 'ROLE_MEDICO') return <Redirect to="/" />;
+  return <Component />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -57,6 +65,7 @@ function Router() {
       <Route path="/insurance" component={() => <NonAdminRoute component={Insurance} />} />
       <Route path="/availability" component={() => <NonAdminRoute component={Availability} />} />
       <Route path="/audit" component={() => <AuditorRoute component={Audit} />} />
+      <Route path="/clinical-ai" component={() => <MedicoRoute component={ClinicalAI} />} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

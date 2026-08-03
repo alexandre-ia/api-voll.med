@@ -51,8 +51,7 @@ Arquivos atuais em `frontend/src/api/`:
 - `medicoConvenios.ts` — convênios aceitos por médicos.
 - `convenioPaciente.ts` — convênios vinculados a pacientes.
 - `auditoria.ts` — auditoria LGPD.
-
-Ainda não existe módulo `ia.ts`; a interface de IA clínica está pendente.
+- `ia.ts` — IA clínica para pré-diagnóstico, laudo e resumo histórico.
 
 ## Autenticação
 
@@ -80,6 +79,7 @@ Rotas atuais em `App.tsx`:
 | `/insurance` | `Insurance` | Privada, não ADMIN |
 | `/availability` | `Availability` | Privada, não ADMIN |
 | `/audit` | `Audit` | Apenas `ROLE_AUDITOR`/`ROLE_GESTOR` |
+| `/clinical-ai` | `ClinicalAI` | Apenas `ROLE_MEDICO` |
 | `/404` | `NotFound` | Pública |
 
 A segurança real é aplicada pelo backend. As guardas do frontend servem para UX e navegação.
@@ -88,7 +88,7 @@ A segurança real é aplicada pelo backend. As guardas do frontend servem para U
 
 - `ROLE_ADMIN` é direcionado para `/users`.
 - `ROLE_AUDITOR` e `ROLE_GESTOR` são direcionados para `/audit`.
-- `ROLE_MEDICO` não vê navegação para usuários, especialidades, convênios e auditoria.
+- `ROLE_MEDICO` vê IA clínica e não vê navegação para usuários, especialidades, convênios e auditoria.
 - Demais regras finas ficam nos botões e nas respostas 403 do backend.
 
 ## Estado Atual das Páginas
@@ -107,10 +107,9 @@ Páginas conectadas à API real:
 - Users
 - Availability
 - Audit
+- ClinicalAI
 
-Pendente:
-
-- IA clínica no frontend (`/ia` ou integração no prontuário a definir).
+Validação local: `npm run check` e `npm run build` passam após instalar dependências com `npm ci`.
 
 ## Tailwind v4
 

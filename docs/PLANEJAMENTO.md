@@ -298,7 +298,7 @@ GET /ia/resumo-historico/{paciente_id}
 
 ## Gaps do Frontend
 
-Backend completo. Frontend conectado à API real na maior parte dos módulos.
+Backend completo. Frontend conectado à API real na maior parte dos módulos, incluindo IA clínica.
 
 | Controller | API Module (`frontend/src/api/`) | Página/Rota | Status |
 |---|---|---|---|
@@ -306,12 +306,12 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos.
 | `MedicoConvenioController` | `medicoConvenios.ts` ✅ | Integrado à área de médicos/convênios ✅ | Implementado |
 | `ConvenioPacienteController` | `convenioPaciente.ts` ✅ | Integrado à área de pacientes/convênios ✅ | Implementado |
 | `AuditoriaController` | `auditoria.ts` ✅ | `/audit` ✅ | Implementado para `ROLE_AUDITOR`/`ROLE_GESTOR` |
-| `IaController` | ❌ | ❌ | Pendente |
+| `IaController` | `ia.ts` ✅ | `/clinical-ai` ✅ | Implementado para `ROLE_MEDICO` |
 
 ### Próxima implementação sugerida
 
-1. **IA clínica no frontend** — definir UX (painel dentro do prontuário ou página separada), criar `frontend/src/api/ia.ts` e implementar as três features: pré-diagnóstico, geração de laudo e resumo histórico.
-2. **Validação do frontend** — instalar dependências e rodar `npm run check`/`npm run build` para confirmar o estado real do TypeScript.
+1. **Fluxo completo de prontuário/atestados na UI** — reduzir dependência de IDs manuais e integrar ações clínicas a partir de consultas/prontuários.
+2. **Dashboard operacional** — enriquecer métricas com dados reais de consultas, médicos e convênios.
 
 ---
 

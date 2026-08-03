@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import {
   BarChart3,
+  BrainCircuit,
   BookOpen,
   Building2,
   Calendar,
@@ -36,6 +37,7 @@ const allNavItems: NavItem[] = [
   { label: 'Prontuários', href: '/medical-records', icon: <BookOpen className="h-5 w-5" /> },
   { label: 'Prescrições', href: '/prescriptions', icon: <Pill className="h-5 w-5" /> },
   { label: 'Atestados', href: '/certificates', icon: <FileText className="h-5 w-5" /> },
+  { label: 'IA clínica', href: '/clinical-ai', icon: <BrainCircuit className="h-5 w-5" /> },
   { label: 'Especialidades', href: '/specialties', icon: <Building2 className="h-5 w-5" /> },
   { label: 'Convênios', href: '/insurance', icon: <ClipboardList className="h-5 w-5" /> },
   { label: 'Auditoria LGPD', href: '/audit', icon: <ShieldCheck className="h-5 w-5" /> },
@@ -58,7 +60,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (user?.role === 'ROLE_ADMIN') return item.href === '/users';
     if (user?.role === 'ROLE_AUDITOR' || user?.role === 'ROLE_GESTOR') return item.href === '/audit';
     if (user?.role === 'ROLE_MEDICO') return !['/users', '/specialties', '/insurance', '/audit'].includes(item.href);
-    return !['/users', '/audit'].includes(item.href);
+    return !['/users', '/audit', '/clinical-ai'].includes(item.href);
   });
 
   return (
