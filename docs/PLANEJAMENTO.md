@@ -310,8 +310,8 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos, in
 
 ### Próxima implementação sugerida
 
-1. **Fluxo completo de atestados na UI** — permitir emissão a partir de prontuários selecionáveis, mantendo a validação de médico responsável no backend.
-2. **Dashboard operacional** — enriquecer métricas com dados reais de consultas, médicos e convênios.
+1. **Dashboard operacional** — enriquecer métricas com dados reais de consultas, médicos e convênios.
+2. **Hardening de dependências frontend** — revisar vulnerabilidades reportadas por `npm audit` sem aplicar fixes automáticos destrutivos.
 
 ---
 

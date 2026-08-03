@@ -101,7 +101,7 @@ Páginas conectadas à API real:
 - Appointments
 - MedicalRecords
 - Prescriptions
-- Certificates
+- Certificates, com consulta por paciente e emissão por prontuário para `ROLE_MEDICO`.
 - Specialties
 - Insurance
 - Users

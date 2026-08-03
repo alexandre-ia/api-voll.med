@@ -170,6 +170,11 @@ export interface AtestadoListagem {
   dataEmissao: string
 }
 
+export interface AtestadoDetalhamento extends AtestadoListagem {
+  cid10?: string
+  observacoes?: string
+}
+
 // --- Prescrição ---
 export type TipoPrescricao = 'SIMPLES' | 'ESPECIAL'
 

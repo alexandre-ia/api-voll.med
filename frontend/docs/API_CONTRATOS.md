@@ -305,6 +305,8 @@ Perfis de acesso recomendados:
 
 ## Atestados
 
+Implementado no frontend em `/certificates`. A tela lista por paciente e permite emissão para `ROLE_MEDICO` a partir de prontuário selecionado.
+
 ### POST /atestados (ROLE_MEDICO)
 ```ts
 // Request
