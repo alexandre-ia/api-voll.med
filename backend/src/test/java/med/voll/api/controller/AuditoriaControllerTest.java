@@ -2,6 +2,7 @@ package med.voll.api.controller;
 
 import med.voll.api.config.MethodSecurityTestConfig;
 import med.voll.api.domain.auditoria.AuditoriaProntuarioRepository;
+import med.voll.api.domain.auditoria.RecursoAuditoria;
 import med.voll.api.domain.usuario.Perfil;
 import med.voll.api.domain.usuario.Usuario;
 import med.voll.api.domain.usuario.UsuarioRepository;
@@ -77,5 +78,17 @@ class AuditoriaControllerTest {
         mvc.perform(get("/auditoria/prontuarios/1")
                         .with(user(usuarioAdmin())))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("ROLE_AUDITOR deve consultar auditoria por recurso clínico e receber 200")
+    void deveConsultarAuditoriaPorRecursoComAuditor() throws Exception {
+        when(auditoriaRepository.findAllByRecursoTipoAndRecursoIdOrderByDataHoraDesc(
+                eq(RecursoAuditoria.PRESCRICAO), eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/auditoria/PRESCRICAO/1")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk());
     }
 }

@@ -76,7 +76,7 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 6 | `ROLE_MEDICO` acessa apenas prontuários de suas próprias consultas | 403 |
 | 7 | `ROLE_FUNCIONARIO` tem acesso operacional de leitura a prontuários quando necessário ao fluxo da clínica | — |
 | 8 | `ROLE_ADMIN` não acessa conteúdo clínico por padrão; acesso administrativo não implica acesso assistencial | 403 |
-| 9 | Leitura clínica ampla, quando necessária para auditoria/gestão, deve usar perfil específico (`ROLE_AUDITOR` ou `ROLE_GESTOR`) e ser auditada | — |
+| 9 | Leitura clínica ampla, quando necessária para auditoria/gestão, deve usar perfil específico (`ROLE_AUDITOR` ou `ROLE_GESTOR`) e ser auditada para prontuários, prescrições e atestados | — |
 | 10 | Exclusão/inativação administrativa de prontuário deve ser restrita a perfil com responsabilidade formal (`ROLE_AUDITOR` ou `ROLE_GESTOR`), não ao admin técnico | — |
 
 ---
@@ -89,7 +89,7 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 2 | Apenas o médico responsável pelo prontuário pode criar prescrições | 403 |
 | 3 | `ROLE_MEDICO` acessa apenas prescrições de seus próprios prontuários | 403 |
 | 4 | `ROLE_FUNCIONARIO` tem acesso operacional de leitura quando necessário; `ROLE_ADMIN` não acessa prescrições por padrão | — |
-| 5 | Leitura ampla de prescrições deve usar `ROLE_AUDITOR` ou `ROLE_GESTOR`, com trilha de auditoria | — |
+| 5 | Leitura ampla de prescrições deve usar `ROLE_AUDITOR` ou `ROLE_GESTOR`, com trilha de auditoria por recurso clínico | — |
 | 6 | Receita `SIMPLES` tem validade de 30 dias; `ESPECIAL` de 60 dias (calculado automaticamente) | — |
 | 7 | Toda prescrição deve ter ao menos um item | 400 |
 
@@ -103,7 +103,7 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 2 | Apenas o médico responsável pelo prontuário pode emitir atestados | 403 |
 | 3 | `ROLE_MEDICO` acessa apenas atestados vinculados aos seus prontuários | 403 |
 | 4 | `ROLE_FUNCIONARIO` tem acesso operacional de leitura quando necessário; `ROLE_ADMIN` não acessa atestados por padrão | — |
-| 5 | Leitura ampla de atestados deve usar `ROLE_AUDITOR` ou `ROLE_GESTOR`, com trilha de auditoria | — |
+| 5 | Leitura ampla de atestados deve usar `ROLE_AUDITOR` ou `ROLE_GESTOR`, com trilha de auditoria por recurso clínico | — |
 | 6 | `diasAfastamento` deve ser no mínimo 1 | 400 |
 | 7 | `cid10` e `observacoes` são opcionais | — |
 | 8 | `dataEmissao` é preenchida automaticamente com a data atual | — |

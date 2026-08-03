@@ -93,6 +93,7 @@ O `DisponibilidadeMedicoController` acessa os repositories diretamente, sem uma 
 | V22 | Tabela `medico_convenios` (N:N médico ↔ convênio) |
 | V23 | Ampliação de `pacientes.telefone` de `CHAR(11)` para `VARCHAR(20)` |
 | V24 | Constraint única em `medicos.usuario_id` para garantir vínculo 1:1 com usuário médico |
+| V25 | Campos `recurso_tipo` e `recurso_id` em `auditoria_prontuario` para trilha LGPD de prescrições e atestados |
 
 Migrations são imutáveis após aplicadas em qualquer ambiente. Para corrigir uma migration já aplicada, criar uma nova.
 

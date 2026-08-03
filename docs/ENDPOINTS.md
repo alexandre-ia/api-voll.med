@@ -218,6 +218,7 @@ Perfis recomendados para ambiente profissional:
 | Método | Endpoint | Descrição | Roles |
 |--------|----------|-----------|-------|
 | `GET` | `/auditoria/prontuarios/{prontuarioId}` | Consultar trilha de acesso de um prontuário | AUDITOR/GESTOR |
+| `GET` | `/auditoria/{recursoTipo}/{recursoId}` | Consultar trilha por recurso clínico (`PRONTUARIO`, `PRESCRICAO`, `ATESTADO`) | AUDITOR/GESTOR |
 
 `ROLE_ADMIN` pode cadastrar usuários operacionais, mas não deve consultar conteúdo clínico, trilhas clínicas ou cadastros operacionais por padrão.
 

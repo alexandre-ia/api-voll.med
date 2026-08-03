@@ -87,7 +87,7 @@ Logs para acompanhar:
 
 - `ddl-auto=validate` — Hibernate valida o schema mas não o altera; toda mudança estrutural exige migration Flyway
 - Migrations em `backend/src/main/resources/db/migration/` com prefixo `V{n}__descricao.sql`
-- Última migration aplicada: `V24` — próxima será `V25`
+- Última migration aplicada: `V25` — próxima será `V26`
 - Exclusão lógica via campo `ativo` em médicos, pacientes e consultas
 
 ### Regras de negócio de consultas (AgendaDeConsultas)
@@ -201,4 +201,4 @@ Backend libera `http://localhost:5173` em dev. Para produção, atualizar `Secur
 
 ## Planejamento de evolução
 
-Backend completo até V24. Frontend conectado à API real na maior parte dos módulos. Próximos passos possíveis: IA clínica no frontend, fluxo completo de prontuário/atestados na UI, auditoria LGPD ampliada e dashboard com métricas mais ricas.
+Backend completo até V25. Frontend conectado à API real na maior parte dos módulos. Próximos passos possíveis: IA clínica no frontend, fluxo completo de prontuário/atestados na UI e dashboard com métricas mais ricas.

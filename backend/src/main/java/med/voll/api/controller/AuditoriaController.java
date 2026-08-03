@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import med.voll.api.domain.auditoria.AuditoriaProntuario;
 import med.voll.api.domain.auditoria.AuditoriaProntuarioRepository;
 import med.voll.api.domain.auditoria.DadosListagemAuditoria;
+import med.voll.api.domain.auditoria.RecursoAuditoria;
 import med.voll.api.domain.usuario.UsuarioRepository;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,28 @@ public class AuditoriaController {
     ) {
         var page = auditoriaRepository.findAllByProntuarioIdOrderByDataHoraDesc(prontuarioId, pageable);
 
+        return ResponseEntity.ok(mapear(page));
+    }
+
+    @GetMapping("/{recursoTipo}/{recursoId}")
+    @PreAuthorize("hasAnyRole('ROLE_AUDITOR', 'ROLE_GESTOR')")
+    @Operation(
+            summary = "Logs de acesso por recurso clínico",
+            description = "Retorna o histórico de acessos LGPD a prontuário, prescrição ou atestado."
+    )
+    @ApiResponse(responseCode = "200", description = "Histórico retornado com sucesso")
+    public ResponseEntity<Page<DadosListagemAuditoria>> listarPorRecurso(
+            @PathVariable RecursoAuditoria recursoTipo,
+            @PathVariable Long recursoId,
+            @ParameterObject @PageableDefault(size = 20, sort = "dataHora") Pageable pageable
+    ) {
+        var page = auditoriaRepository.findAllByRecursoTipoAndRecursoIdOrderByDataHoraDesc(
+                recursoTipo, recursoId, pageable);
+
+        return ResponseEntity.ok(mapear(page));
+    }
+
+    private Page<DadosListagemAuditoria> mapear(Page<AuditoriaProntuario> page) {
         var ids = page.getContent().stream()
                 .map(AuditoriaProntuario::getUsuarioId)
                 .collect(Collectors.toSet());
@@ -53,6 +76,6 @@ public class AuditoriaController {
 
         var dtos = page.map(a -> new DadosListagemAuditoria(
                 a, loginMap.getOrDefault(a.getUsuarioId(), "ID " + a.getUsuarioId())));
-        return ResponseEntity.ok(dtos);
+        return dtos;
     }
 }

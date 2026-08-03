@@ -1,6 +1,6 @@
 # Testes Automatizados — API Voll.med
 
-Suite com **137 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
+Suite com **140 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
 
 ---
 
@@ -51,13 +51,14 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 | `ProntuarioServiceTest` | 7 | Criação (403/409/400), edição (422 janela expirada, 403 médico errado), 404 |
 | `EspecialidadeServiceTest` | 8 | CRUD, nome duplicado (409), inativação |
 | `IaServiceTest` | 6 | Mock do `RestClient`, vínculo médico, sem prontuários, pré-diagnóstico, laudo, resumo histórico |
+| `AuditoriaProntuarioAspectTest` | 2 | Auditoria AOP para prescrição e atestado com tipo/id de recurso clínico |
 
 ### Testes de controller
 
 | Classe | Testes | O que cobre |
 |--------|--------|-------------|
 | `AtestadoControllerTest` | 6 | Emitir (MEDICO), detalhar/listar, 403, 401 |
-| `AuditoriaControllerTest` | 3 | Acesso à trilha LGPD restrito a AUDITOR/GESTOR |
+| `AuditoriaControllerTest` | 4 | Acesso à trilha LGPD por prontuário/recurso restrito a AUDITOR/GESTOR |
 | `AutenticacaoControllerTest` | 11 | Login (200+token), cadastro/listagem de usuários (ADMIN), validação de vínculo médico, bloqueios por role, login duplicado |
 | `ConsultaControllerTest` | 7 | Agendar/cancelar (FUNCIONARIO), listar por roles, 403 para ações indevidas |
 | `ConvenioControllerTest` | 10 | CRUD de convênios, paginação, permissões por role |

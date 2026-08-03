@@ -20,7 +20,7 @@ Este documento registra as funcionalidades planejadas para tornar o sistema util
 | **Triagem e Retorno de Consulta** | **Implementado (V15, V16)** |
 | **Atestado Médico** | **Implementado (V17)** |
 | **Convênios / Planos de Saúde** | **Implementado (V18)** |
-| **Auditoria LGPD (Prontuário)** | **Implementado (V19) via AOP** |
+| **Auditoria LGPD (Prontuário, Prescrição, Atestado)** | **Implementado (V19, ampliado em V25) via AOP** |
 | **Auditoria de Entidades (JPA)** | **Implementado (V20)** |
 | **Especialidade como entidade** | **Implementado (V21)** |
 | **Integração com IA (Claude API)** | **Implementado** |
@@ -333,3 +333,4 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos.
 | `V22` | Criar tabela `medico_convenios` (N:N médico ↔ convênio) | Aplicado |
 | `V23` | Ampliar `pacientes.telefone` de `CHAR(11)` para `VARCHAR(20)` | Aplicado |
 | `V24` | Adicionar unicidade em `medicos.usuario_id` | Aplicado |
+| `V25` | Ampliar auditoria LGPD com tipo/id do recurso clínico | Aplicado |

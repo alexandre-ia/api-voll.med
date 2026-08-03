@@ -7,4 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AuditoriaProntuarioRepository extends JpaRepository<AuditoriaProntuario, Long> {
 
     Page<AuditoriaProntuario> findAllByProntuarioIdOrderByDataHoraDesc(Long prontuarioId, Pageable pageable);
+
+    Page<AuditoriaProntuario> findAllByRecursoTipoAndRecursoIdOrderByDataHoraDesc(
+            RecursoAuditoria recursoTipo, Long recursoId, Pageable pageable);
 }
