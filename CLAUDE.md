@@ -87,7 +87,7 @@ Logs para acompanhar:
 
 - `ddl-auto=validate` — Hibernate valida o schema mas não o altera; toda mudança estrutural exige migration Flyway
 - Migrations em `backend/src/main/resources/db/migration/` com prefixo `V{n}__descricao.sql`
-- Última migration aplicada: `V23` — próxima será `V24`
+- Última migration aplicada: `V24` — próxima será `V25`
 - Exclusão lógica via campo `ativo` em médicos, pacientes e consultas
 
 ### Regras de negócio de consultas (AgendaDeConsultas)
@@ -95,7 +95,7 @@ Logs para acompanhar:
 - Clínica funciona Seg–Sáb, 07h–19h
 - Agendamento com mínimo 30 min de antecedência; cancelamento com mínimo 24h
 - Paciente não pode ter duas consultas no mesmo dia
-- Médico pode ser omitido — sistema escolhe aleatoriamente um disponível na data (sem agenda de disponibilidade real ainda — ver planejamento)
+- Médico pode ser omitido — sistema escolhe aleatoriamente um disponível na data usando agenda de disponibilidade real
 
 ## Frontend
 
@@ -201,4 +201,4 @@ Backend libera `http://localhost:5173` em dev. Para produção, atualizar `Secur
 
 ## Planejamento de evolução
 
-Backend completo (V1–V23). Frontend totalmente conectado à API real (V23 do frontend). Próximos passos possíveis: filtro de consultas por médico logado (`ROLE_MEDICO`), agenda de disponibilidade real, dashboard com métricas mais ricas.
+Backend completo até V24. Frontend conectado à API real na maior parte dos módulos. Próximos passos possíveis: IA clínica no frontend, fluxo completo de prontuário/atestados na UI, auditoria LGPD ampliada e dashboard com métricas mais ricas.

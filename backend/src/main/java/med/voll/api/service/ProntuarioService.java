@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @Service
 public class ProntuarioService {
 
@@ -43,7 +45,7 @@ public class ProntuarioService {
         var medicoLogado = medicoRepository.findByUsuario(usuarioLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui cadastro de médico"));
 
-        if (consulta.getMedico().getId() != medicoLogado.getId()) {
+        if (!Objects.equals(consulta.getMedico().getId(), medicoLogado.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas o médico que realizou a consulta pode criar o prontuário");
         }
 
@@ -73,7 +75,7 @@ public class ProntuarioService {
         var medicoLogado = medicoRepository.findByUsuario(usuarioLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui cadastro de médico"));
 
-        if (prontuario.getMedico().getId() != medicoLogado.getId()) {
+        if (!Objects.equals(prontuario.getMedico().getId(), medicoLogado.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas o médico responsável pode editar o prontuário");
         }
 
@@ -105,7 +107,7 @@ public class ProntuarioService {
         if (usuarioLogado.getAuthorities().contains(Perfil.ROLE_MEDICO)) {
             var medico = medicoRepository.findByUsuario(usuarioLogado)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui cadastro de médico"));
-            if (prontuario.getMedico().getId() != medico.getId()) {
+            if (!Objects.equals(prontuario.getMedico().getId(), medico.getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado a este prontuário");
             }
         }

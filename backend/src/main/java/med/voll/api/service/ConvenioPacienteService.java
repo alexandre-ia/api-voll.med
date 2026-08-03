@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @Service
 public class ConvenioPacienteService {
 
@@ -62,7 +64,7 @@ public class ConvenioPacienteService {
         var cp = convenioPacienteRepository.findById(convenioPacienteId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vínculo não encontrado"));
 
-        if (cp.getPaciente().getId() != pacienteId) {
+        if (!Objects.equals(cp.getPaciente().getId(), pacienteId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este vínculo não pertence ao paciente informado");
         }
 

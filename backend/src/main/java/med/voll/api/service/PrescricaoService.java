@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @Service
 public class PrescricaoService {
 
@@ -36,7 +38,7 @@ public class PrescricaoService {
         var medicoLogado = medicoRepository.findByUsuario(usuarioLogado)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui cadastro de médico"));
 
-        if (prontuario.getMedico().getId() != medicoLogado.getId()) {
+        if (!Objects.equals(prontuario.getMedico().getId(), medicoLogado.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Apenas o médico responsável pelo prontuário pode criar prescrições");
         }
@@ -57,7 +59,7 @@ public class PrescricaoService {
         if (usuarioLogado.getAuthorities().contains(Perfil.ROLE_MEDICO)) {
             var medico = medicoRepository.findByUsuario(usuarioLogado)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui cadastro de médico"));
-            if (prescricao.getProntuario().getMedico().getId() != medico.getId()) {
+            if (!Objects.equals(prescricao.getProntuario().getMedico().getId(), medico.getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado a esta prescrição");
             }
         }

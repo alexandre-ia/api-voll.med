@@ -43,7 +43,7 @@ Perfis recomendados para ambiente profissional:
 | `PUT` | `/medicos` | Atualizar médico (ID no body) | FUNCIONARIO |
 | `DELETE` | `/medicos/{id}` | Inativar médico (exclusão lógica) | FUNCIONARIO |
 | `POST` | `/medicos/{id}/disponibilidade` | Cadastrar horários de disponibilidade | FUNCIONARIO |
-| `GET` | `/medicos/{id}/disponibilidade` | Listar horários de disponibilidade | Qualquer usuário autenticado |
+| `GET` | `/medicos/{id}/disponibilidade` | Listar horários de disponibilidade | FUNCIONARIO, MEDICO, AUDITOR/GESTOR |
 | `DELETE` | `/medicos/{id}/disponibilidade/{dispId}` | Remover horário de disponibilidade | FUNCIONARIO |
 
 ---

@@ -332,3 +332,4 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos.
 | `V21` | Criar tabela `especialidades`, migrar FK em `medicos`, remover coluna enum | Aplicado |
 | `V22` | Criar tabela `medico_convenios` (N:N médico ↔ convênio) | Aplicado |
 | `V23` | Ampliar `pacientes.telefone` de `CHAR(11)` para `VARCHAR(20)` | Aplicado |
+| `V24` | Adicionar unicidade em `medicos.usuario_id` | Aplicado |

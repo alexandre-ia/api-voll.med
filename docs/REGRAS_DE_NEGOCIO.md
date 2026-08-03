@@ -176,7 +176,7 @@ Modelo profissional recomendado:
 | `DELETE /consultas` | — | ✅ | — | — |
 | `GET /consultas` | — | ✅ | ✅ (apenas as suas) | ✅ |
 | `POST /medicos/{id}/disponibilidade` | — | ✅ | — | — |
-| `GET /medicos/{id}/disponibilidade` | ✅ (autenticado) | ✅ | ✅ | ✅ |
+| `GET /medicos/{id}/disponibilidade` | — | ✅ | ✅ | ✅ |
 | `DELETE /medicos/{id}/disponibilidade/{dispId}` | — | ✅ | — | — |
 | `POST /prontuarios` | — | — | ✅ (da sua consulta) | — |
 | `PUT /prontuarios` | — | — | ✅ (seu, em 24h) | — |

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("medicos/{medicoId}/disponibilidade")
@@ -48,6 +49,7 @@ public class DisponibilidadeMedicoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_FUNCIONARIO', 'ROLE_MEDICO', 'ROLE_AUDITOR', 'ROLE_GESTOR')")
     @Operation(summary = "Listar disponibilidade", description = "Lista os horários de disponibilidade ativos do médico")
     public ResponseEntity<List<DadosListagemDisponibilidade>> listar(@PathVariable Long medicoId) {
         var lista = disponibilidadeRepository.findAllByMedicoIdAndAtivoTrue(medicoId)
@@ -63,7 +65,7 @@ public class DisponibilidadeMedicoController {
             @PathVariable Long disponibilidadeId
     ) {
         var disponibilidade = disponibilidadeRepository.findById(disponibilidadeId)
-                .filter(d -> d.getMedico().getId() == medicoId && d.isAtivo())
+                .filter(d -> Objects.equals(d.getMedico().getId(), medicoId) && d.isAtivo())
                 .orElseThrow(() -> new ValidacaoException("Disponibilidade não encontrada para este médico"));
         disponibilidade.inativar();
         return ResponseEntity.noContent().build();

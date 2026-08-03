@@ -38,7 +38,7 @@ public class Medico {
     private boolean ativo;
 
     @OneToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", unique = true)
     @Setter
     private Usuario usuario;
 
