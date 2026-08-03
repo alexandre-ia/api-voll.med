@@ -11,13 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Calendar, Clock, Users, AlertCircle, Plus, Stethoscope } from 'lucide-react';
+import { Calendar, Clock, Users, AlertCircle, Plus, Stethoscope, Building2, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
 import { consultasApi } from '@/api/consultas';
+import { conveniosApi } from '@/api/convenios';
+import { especialidadesApi } from '@/api/especialidades';
 import { medicosApi } from '@/api/medicos';
 import { pacientesApi } from '@/api/pacientes';
+import { prontuariosApi } from '@/api/prontuarios';
 import { useAuth } from '@/hooks/useAuth';
-import { canReadPatients, canReadConsultas } from '@/lib/rbac';
+import { canReadPatients, canReadConsultas, canWrite } from '@/lib/rbac';
 import type { ConsultaListagem, Prioridade } from '@/types/api';
 
 const prioridadeLabel: Record<Prioridade, string> = {
@@ -37,14 +40,32 @@ interface Stats {
   totalPacientes: number
   medicoAtivos: number
   totalConsultas: number
+  urgenciasHoje: number
+  proximasConsultas: number
+  totalConvenios: number
+  totalEspecialidades: number
+  totalProntuarios: number
 }
+
+const initialStats: Stats = {
+  consultasHoje: 0,
+  totalPacientes: 0,
+  medicoAtivos: 0,
+  totalConsultas: 0,
+  urgenciasHoje: 0,
+  proximasConsultas: 0,
+  totalConvenios: 0,
+  totalEspecialidades: 0,
+  totalProntuarios: 0,
+};
 
 export default function Dashboard() {
   const { user } = useAuth();
   const showPatientStats = canReadPatients(user?.role);
   const showConsultaStats = canReadConsultas(user?.role);
+  const isFuncionario = canWrite(user?.role);
 
-  const [stats, setStats] = useState<Stats>({ consultasHoje: 0, totalPacientes: 0, medicoAtivos: 0, totalConsultas: 0 });
+  const [stats, setStats] = useState<Stats>(initialStats);
   const [todayAppointments, setTodayAppointments] = useState<ConsultaListagem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -52,27 +73,51 @@ export default function Dashboard() {
     if (!showConsultaStats) return;
     setLoading(true);
 
-    const requests: Promise<any>[] = [consultasApi.list(0, 50)];
-    if (user?.role !== 'ROLE_MEDICO') requests.push(medicosApi.list(0, 1));
-    if (showPatientStats) requests.push(pacientesApi.list(0, 1));
+    const consultasPromise = consultasApi.list(0, 100);
+    const pacientesPromise = showPatientStats ? pacientesApi.list(0, 1) : Promise.resolve(null);
+    const medicosPromise = isFuncionario ? medicosApi.list(0, 1) : Promise.resolve(null);
+    const conveniosPromise = isFuncionario ? conveniosApi.list(0, 1) : Promise.resolve(null);
+    const especialidadesPromise = isFuncionario ? especialidadesApi.list(0, 1) : Promise.resolve(null);
+    const prontuariosPromise = prontuariosApi.list(0, 1);
 
-    Promise.all(requests)
-      .then(([consultas, medicos, pacientes]) => {
+    Promise.all([
+      consultasPromise,
+      pacientesPromise,
+      medicosPromise,
+      conveniosPromise,
+      especialidadesPromise,
+      prontuariosPromise,
+    ])
+      .then(([consultas, pacientes, medicos, convenios, especialidades, prontuarios]) => {
         const hoje = new Date().toDateString();
+        const agora = new Date();
+        const daquiSeteDias = new Date();
+        daquiSeteDias.setDate(daquiSeteDias.getDate() + 7);
+
         const todayList = consultas.content.filter(
           (c: ConsultaListagem) => new Date(c.dataHora).toDateString() === hoje
         );
+        const proximasConsultas = consultas.content.filter(c => {
+          const data = new Date(c.dataHora);
+          return data >= agora && data <= daquiSeteDias;
+        }).length;
+
         setTodayAppointments(todayList);
         setStats({
           consultasHoje: todayList.length,
+          urgenciasHoje: todayList.filter(c => c.prioridade === 'URGENCIA').length,
+          proximasConsultas,
           totalPacientes: pacientes?.totalElements ?? 0,
           medicoAtivos: medicos?.totalElements ?? 0,
           totalConsultas: consultas.totalElements,
+          totalConvenios: convenios?.totalElements ?? 0,
+          totalEspecialidades: especialidades?.totalElements ?? 0,
+          totalProntuarios: prontuarios?.totalElements ?? 0,
         });
       })
-      .catch(() => {})
+      .catch(() => setStats(initialStats))
       .finally(() => setLoading(false));
-  }, []);
+  }, [isFuncionario, showConsultaStats, showPatientStats, user?.role]);
 
   const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -84,6 +129,22 @@ export default function Dashboard() {
       icon: Calendar,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
+      show: showConsultaStats,
+    },
+    {
+      title: 'Urgências Hoje',
+      value: stats.urgenciasHoje,
+      icon: AlertCircle,
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
+      show: showConsultaStats,
+    },
+    {
+      title: 'Próximos 7 Dias',
+      value: stats.proximasConsultas,
+      icon: Clock,
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-50',
       show: showConsultaStats,
     },
     {
@@ -109,6 +170,30 @@ export default function Dashboard() {
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
       show: showConsultaStats,
+    },
+    {
+      title: 'Prontuários',
+      value: stats.totalProntuarios,
+      icon: BookOpen,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      show: showConsultaStats,
+    },
+    {
+      title: 'Convênios',
+      value: stats.totalConvenios,
+      icon: Building2,
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50',
+      show: isFuncionario,
+    },
+    {
+      title: 'Especialidades',
+      value: stats.totalEspecialidades,
+      icon: Stethoscope,
+      color: 'text-pink-600',
+      bgColor: 'bg-pink-50',
+      show: isFuncionario,
     },
   ].filter(s => s.show);
 
@@ -161,7 +246,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {showConsultaStats && (
+              {isFuncionario && showConsultaStats && (
                 <Link href="/appointments">
                   <Button variant="outline" className="w-full justify-start">
                     <Plus className="h-4 w-4 mr-2" />
@@ -169,7 +254,7 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               )}
-              {showPatientStats && (
+              {isFuncionario && showPatientStats && (
                 <Link href="/patients">
                   <Button variant="outline" className="w-full justify-start">
                     <Plus className="h-4 w-4 mr-2" />
@@ -177,12 +262,14 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               )}
-              <Link href="/doctors">
-                <Button variant="outline" className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Médico
-                </Button>
-              </Link>
+              {isFuncionario && (
+                <Link href="/doctors">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Médico
+                  </Button>
+                </Link>
+              )}
               {showConsultaStats && (
                 <Link href="/medical-records">
                   <Button variant="outline" className="w-full justify-start">

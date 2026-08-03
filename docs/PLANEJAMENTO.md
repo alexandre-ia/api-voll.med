@@ -310,8 +310,8 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos, in
 
 ### Próxima implementação sugerida
 
-1. **Dashboard operacional** — enriquecer métricas com dados reais de consultas, médicos e convênios.
-2. **Hardening de dependências frontend** — revisar vulnerabilidades reportadas por `npm audit` sem aplicar fixes automáticos destrutivos.
+1. **Hardening de dependências frontend** — revisar vulnerabilidades reportadas por `npm audit` sem aplicar fixes automáticos destrutivos.
+2. **Otimização de bundle** — avaliar code splitting para reduzir o aviso de chunk grande do Vite.
 
 ---
 

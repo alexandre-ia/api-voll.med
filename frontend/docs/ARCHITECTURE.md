@@ -95,7 +95,7 @@ A segurança real é aplicada pelo backend. As guardas do frontend servem para U
 
 Páginas conectadas à API real:
 
-- Dashboard
+- Dashboard, com métricas reais via `totalElements` das APIs e agenda do dia derivada das consultas carregadas.
 - Doctors
 - Patients
 - Appointments
