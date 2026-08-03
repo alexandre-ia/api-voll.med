@@ -51,7 +51,7 @@ Arquivos atuais em `frontend/src/api/`:
 - `medicoConvenios.ts` — convênios aceitos por médicos.
 - `convenioPaciente.ts` — convênios vinculados a pacientes.
 - `auditoria.ts` — auditoria LGPD.
-- `ia.ts` — IA clínica para pré-diagnóstico, laudo e resumo histórico.
+- `ia.ts` — IA clínica para pré-diagnóstico, laudo e resumo histórico, consumida por `/clinical-ai`.
 
 ## Autenticação
 
@@ -107,7 +107,7 @@ Páginas conectadas à API real:
 - Users
 - Availability
 - Audit
-- ClinicalAI
+- ClinicalAI, com seleção de consulta, prontuário e paciente a partir das APIs existentes.
 
 Validação local: `npm run check` e `npm run build` passam após instalar dependências com `npm ci`.
 

@@ -201,4 +201,4 @@ Backend libera `http://localhost:5173` em dev. Para produção, atualizar `Secur
 
 ## Planejamento de evolução
 
-Backend completo até V25. Frontend conectado à API real, incluindo IA clínica para `ROLE_MEDICO`. Próximos passos possíveis: fluxo completo de prontuário/atestados na UI e dashboard com métricas mais ricas.
+Backend completo até V25. Frontend conectado à API real, incluindo IA clínica para `ROLE_MEDICO` com seleção de dados clínicos sem IDs manuais. Próximos passos possíveis: emissão completa de atestados na UI e dashboard com métricas mais ricas.

@@ -1,22 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BrainCircuit, FileSearch, FileText, History, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { consultasApi } from '@/api/consultas';
 import { iaApi } from '@/api/ia';
+import { pacientesApi } from '@/api/pacientes';
+import { prontuariosApi } from '@/api/prontuarios';
 import { extractApiError } from '@/lib/utils';
+import type { ConsultaListagem, PacienteListagem, ProntuarioListagem } from '@/types/api';
 
 type ResultadoIa = {
   titulo: string
   texto: string
 }
 
+const formatDateTime = (value: string) => new Date(value).toLocaleString('pt-BR', {
+  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+});
+
+const formatDate = (value: string) => new Date(value).toLocaleDateString('pt-BR');
+
 export default function ClinicalAI() {
+  const [consultas, setConsultas] = useState<ConsultaListagem[]>([]);
+  const [prontuarios, setProntuarios] = useState<ProntuarioListagem[]>([]);
+  const [pacientes, setPacientes] = useState<PacienteListagem[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+
   const [consultaId, setConsultaId] = useState('');
   const [sintomas, setSintomas] = useState('');
   const [prontuarioId, setProntuarioId] = useState('');
@@ -25,18 +42,25 @@ export default function ClinicalAI() {
   const [resultado, setResultado] = useState<ResultadoIa | null>(null);
   const [loading, setLoading] = useState<'pre' | 'laudo' | 'resumo' | null>(null);
 
-  const validarId = (valor: string, campo: string) => {
-    const id = Number(valor);
-    if (!Number.isInteger(id) || id <= 0) {
-      toast.error(`Informe um ${campo} válido`);
-      return null;
-    }
-    return id;
-  };
+  useEffect(() => {
+    setLoadingOptions(true);
+    Promise.all([
+      consultasApi.list(0, 100),
+      prontuariosApi.list(0, 100),
+      pacientesApi.list(0, 200),
+    ])
+      .then(([consultasPage, prontuariosPage, pacientesPage]) => {
+        setConsultas(consultasPage.content);
+        setProntuarios(prontuariosPage.content);
+        setPacientes(pacientesPage.content);
+      })
+      .catch(() => toast.error('Erro ao carregar opções clínicas'))
+      .finally(() => setLoadingOptions(false));
+  }, []);
 
   const gerarPreDiagnostico = async () => {
-    const id = validarId(consultaId, 'ID de consulta');
-    if (!id) return;
+    const id = Number(consultaId);
+    if (!id) { toast.error('Selecione uma consulta'); return; }
     if (!sintomas.trim()) { toast.error('Descreva os sintomas do paciente'); return; }
 
     setLoading('pre');
@@ -51,8 +75,8 @@ export default function ClinicalAI() {
   };
 
   const gerarLaudo = async () => {
-    const id = validarId(prontuarioId, 'ID de prontuário');
-    if (!id) return;
+    const id = Number(prontuarioId);
+    if (!id) { toast.error('Selecione um prontuário'); return; }
     if (!anotacoes.trim()) { toast.error('Informe as anotações clínicas'); return; }
 
     setLoading('laudo');
@@ -67,8 +91,8 @@ export default function ClinicalAI() {
   };
 
   const resumirHistorico = async () => {
-    const id = validarId(pacienteId, 'ID de paciente');
-    if (!id) return;
+    const id = Number(pacienteId);
+    if (!id) { toast.error('Selecione um paciente'); return; }
 
     setLoading('resumo');
     try {
@@ -101,8 +125,19 @@ export default function ClinicalAI() {
             </div>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="consultaId">Consulta ID</Label>
-                <Input id="consultaId" value={consultaId} onChange={e => setConsultaId(e.target.value)} inputMode="numeric" />
+                <Label>Consulta</Label>
+                <Select value={consultaId} onValueChange={setConsultaId} disabled={loadingOptions}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingOptions ? 'Carregando consultas...' : 'Selecione a consulta'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {consultas.map(consulta => (
+                      <SelectItem key={consulta.id} value={String(consulta.id)}>
+                        #{consulta.id} - {consulta.nomePaciente} com {consulta.nomeMedico} - {formatDateTime(consulta.dataHora)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="sintomas">Sintomas</Label>
@@ -124,8 +159,19 @@ export default function ClinicalAI() {
             </div>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="prontuarioId">Prontuário ID</Label>
-                <Input id="prontuarioId" value={prontuarioId} onChange={e => setProntuarioId(e.target.value)} inputMode="numeric" />
+                <Label>Prontuário</Label>
+                <Select value={prontuarioId} onValueChange={setProntuarioId} disabled={loadingOptions}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingOptions ? 'Carregando prontuários...' : 'Selecione o prontuário'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {prontuarios.map(prontuario => (
+                      <SelectItem key={prontuario.id} value={String(prontuario.id)}>
+                        #{prontuario.id} - {prontuario.nomePaciente} - {prontuario.diagnostico} ({formatDate(prontuario.dataRegistro)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="anotacoes">Anotações</Label>
@@ -147,8 +193,19 @@ export default function ClinicalAI() {
             </div>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="pacienteId">Paciente ID</Label>
-                <Input id="pacienteId" value={pacienteId} onChange={e => setPacienteId(e.target.value)} inputMode="numeric" />
+                <Label>Paciente</Label>
+                <Select value={pacienteId} onValueChange={setPacienteId} disabled={loadingOptions}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingOptions ? 'Carregando pacientes...' : 'Selecione o paciente'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pacientes.map(paciente => (
+                      <SelectItem key={paciente.id} value={String(paciente.id)}>
+                        {paciente.nome} - {paciente.cpf}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
                 A IA considera apenas dados clínicos que pertencem ao médico logado.

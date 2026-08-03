@@ -365,7 +365,7 @@ Perfis de acesso recomendados:
 
 ## IA Clínica (ROLE_MEDICO)
 
-Implementado no frontend em `frontend/src/api/ia.ts` e na rota `/clinical-ai`.
+Implementado no frontend em `frontend/src/api/ia.ts` e na rota `/clinical-ai`. A tela carrega consultas, prontuários e pacientes para evitar digitação manual de IDs.
 
 ### POST /ia/pre-diagnostico
 ```ts

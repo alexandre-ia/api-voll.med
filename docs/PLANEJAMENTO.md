@@ -306,11 +306,11 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos, in
 | `MedicoConvenioController` | `medicoConvenios.ts` ✅ | Integrado à área de médicos/convênios ✅ | Implementado |
 | `ConvenioPacienteController` | `convenioPaciente.ts` ✅ | Integrado à área de pacientes/convênios ✅ | Implementado |
 | `AuditoriaController` | `auditoria.ts` ✅ | `/audit` ✅ | Implementado para `ROLE_AUDITOR`/`ROLE_GESTOR` |
-| `IaController` | `ia.ts` ✅ | `/clinical-ai` ✅ | Implementado para `ROLE_MEDICO` |
+| `IaController` | `ia.ts` ✅ | `/clinical-ai` ✅ | Implementado para `ROLE_MEDICO`, com seleção de consulta/prontuário/paciente sem IDs manuais |
 
 ### Próxima implementação sugerida
 
-1. **Fluxo completo de prontuário/atestados na UI** — reduzir dependência de IDs manuais e integrar ações clínicas a partir de consultas/prontuários.
+1. **Fluxo completo de atestados na UI** — permitir emissão a partir de prontuários selecionáveis, mantendo a validação de médico responsável no backend.
 2. **Dashboard operacional** — enriquecer métricas com dados reais de consultas, médicos e convênios.
 
 ---
