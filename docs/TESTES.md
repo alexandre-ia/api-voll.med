@@ -20,6 +20,16 @@ cd backend
 ./mvnw test -Dtest="ConsultaControllerTest,AgendaDeConsultasTest"
 ```
 
+No frontend, executar a partir de `frontend/`:
+
+```bash
+npm audit
+npm run check
+npm run build
+```
+
+`npm audit` deve retornar `found 0 vulnerabilities` após o hardening de dependências frontend.
+
 ---
 
 ## Estratégia

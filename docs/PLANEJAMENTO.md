@@ -298,7 +298,7 @@ GET /ia/resumo-historico/{paciente_id}
 
 ## Gaps do Frontend
 
-Backend completo. Frontend conectado à API real na maior parte dos módulos, incluindo IA clínica.
+Backend completo. Frontend conectado à API real na maior parte dos módulos, incluindo IA clínica e dashboard operacional com métricas reais.
 
 | Controller | API Module (`frontend/src/api/`) | Página/Rota | Status |
 |---|---|---|---|
@@ -310,8 +310,8 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos, in
 
 ### Próxima implementação sugerida
 
-1. **Hardening de dependências frontend** — revisar vulnerabilidades reportadas por `npm audit` sem aplicar fixes automáticos destrutivos.
-2. **Otimização de bundle** — avaliar code splitting para reduzir o aviso de chunk grande do Vite.
+1. **Otimização de bundle** — avaliar code splitting para reduzir o aviso de chunk grande do Vite.
+2. **E2E smoke tests** — cobrir login e navegação principal do frontend contra backend local.
 
 ---
 

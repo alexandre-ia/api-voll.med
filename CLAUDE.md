@@ -201,4 +201,4 @@ Backend libera `http://localhost:5173` em dev. Para produção, atualizar `Secur
 
 ## Planejamento de evolução
 
-Backend completo até V25. Frontend conectado à API real, incluindo IA clínica, emissão de atestados para `ROLE_MEDICO` e dashboard operacional com métricas reais. Próximos passos possíveis: hardening de dependências frontend e otimização de bundle.
+Backend completo até V25. Frontend conectado à API real, incluindo IA clínica, emissão de atestados para `ROLE_MEDICO` e dashboard operacional com métricas reais. Dependências frontend auditadas com `npm audit` sem vulnerabilidades conhecidas. Próximo passo possível: otimização de bundle.
