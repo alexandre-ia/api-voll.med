@@ -87,8 +87,12 @@ public class SecurityConfigurations {
                 "http://127.0.0.1:3000",
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "https://voll-med.vercel.app",
+                "https://voll-med-alexandre-henriques-projects-7963356e.vercel.app",
+                "https://voll-med-git-main-alexandre-henriques-projects-7963356e.vercel.app"
         ));
+        configuration.setAllowedOriginPatterns(List.of("https://voll-*.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
