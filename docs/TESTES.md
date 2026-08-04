@@ -131,3 +131,21 @@ Usa `@WithMockUser` porque o endpoint `/auth/login` é público mas `@WebMvcTest
 ### Requisições mutantes (POST/PUT/DELETE)
 
 Sempre adicionar `.with(csrf())`. Sem CSRF token, Spring Security retorna 403 mesmo com usuário autenticado.
+
+### Validação dos containers
+
+O erro `SQL State: 08S01 / Communications link failure` no `backend-voll` indica falha de conexão inicial com o MySQL. A configuração Docker Compose usa healthcheck SQL real no `db` e retries do Flyway para evitar corrida de inicialização entre MySQL e backend.
+
+Com Docker Desktop ativo, validar a stack com:
+
+```bash
+docker compose --env-file backend/.env config
+docker compose --env-file backend/.env up --build
+docker compose --env-file backend/.env ps
+```
+
+Endpoints esperados após subir:
+
+- Frontend: `http://localhost:3000`
+- Backend/Swagger: `http://localhost:8080/swagger-ui.html`
+

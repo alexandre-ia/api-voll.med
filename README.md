@@ -152,20 +152,45 @@ Inclui:
 
 ## ▶️ Como executar
 
-### 1. Subir banco
+### Opção A — subir stack fullstack com Docker Compose
+
+Crie o arquivo local de ambiente antes da primeira execução:
 
 ```bash
-docker compose --env-file backend/.env up -d
+cp backend/.env.example backend/.env
 ```
 
-### 2. Rodar backend
+> Os valores do `.env.example` são apenas para desenvolvimento local. Troque `JWT_SECRET`, `ADMIN_PASSWORD` e `DB_PASSWORD` fora do ambiente local.
+
+```bash
+docker compose --env-file backend/.env up --build
+```
+
+Com a stack ativa:
+
+- Frontend: `http://localhost:3000` (ou `FRONTEND_PORT` no `.env`)
+- Backend/API: `http://localhost:8080` (ou `BACKEND_PORT` no `.env`)
+- Swagger: `http://localhost:8080/swagger-ui.html`
+- MySQL no host: `localhost:3307` (ou `DB_PORT` no `.env`)
+
+O frontend em container usa Nginx e proxy `/api` para o backend dentro da rede Docker.
+
+### Opção B — desenvolvimento local
+
+Subir apenas o banco:
+
+```bash
+docker compose --env-file backend/.env up -d db
+```
+
+Rodar backend:
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-### 3. Rodar frontend
+Rodar frontend:
 
 ```bash
 cd frontend

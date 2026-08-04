@@ -5,8 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Subir o banco de dados (MySQL 8.0 na porta 3307) — rodar da raiz do projeto
-docker compose --env-file backend/.env up -d
+# Subir stack fullstack (MySQL + backend + frontend) — rodar da raiz do projeto
+docker compose --env-file backend/.env up --build
+
+# Subir apenas o banco para desenvolvimento local
+docker compose --env-file backend/.env up -d db
 
 # Executar a aplicação — rodar de dentro de backend/
 cd backend && ./mvnw spring-boot:run

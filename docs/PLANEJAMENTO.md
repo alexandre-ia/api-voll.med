@@ -312,6 +312,7 @@ Backend completo. Frontend conectado à API real na maior parte dos módulos, in
 
 1. **Otimização de bundle** — avaliar code splitting para reduzir o aviso de chunk grande do Vite.
 2. **E2E smoke tests** — cobrir login e navegação principal do frontend contra backend local.
+3. **DevOps com Docker Compose fullstack** — implementado: MySQL, backend e frontend sobem com `docker compose --env-file backend/.env up --build`, incluindo Dockerfile do frontend e configuração de rede/variáveis entre serviços.
 
 ---
 

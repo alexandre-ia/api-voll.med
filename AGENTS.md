@@ -3,10 +3,10 @@
 ## Run Commands
 
 ```bash
-# Start MySQL (required) - wait for "healthy" status before running app
-docker compose --env-file backend/.env up -d
+# Start fullstack stack (MySQL + backend + frontend)
+docker compose --env-file backend/.env up --build
 
-# Run application
+# Run backend locally, if using Compose only for MySQL
 cd backend
 ./mvnw spring-boot:run
 
@@ -18,7 +18,7 @@ cd backend
 ## Architecture
 
 - **Framework**: Spring Boot 3.5.4, Java 17, Maven
-- **Database**: MySQL 8.0 on port 3307 (via Docker)
+- **Database**: MySQL 8.0 on port 3307 (via Docker host mapping; backend container uses `db:3306`)
 - **Migrations**: Flyway in `backend/src/main/resources/db/migration/`
 - **Auth**: JWT via `/login` (public); other endpoints require Bearer token
 - **Soft deletes**: Entities use `ativo` field, not physical deletes
@@ -45,6 +45,8 @@ V1–V25 applied (next: V26)
 ## Gotchas
 
 - `backend/.env` file must exist for backend configuration and Docker Compose command above (DB_PASSWORD=root)
+- `backend/.env.example` contains development-only defaults; copy it to `backend/.env` and change secrets outside local dev
+- Fullstack Docker Compose publishes frontend on `${FRONTEND_PORT:-3000}` and backend on `${BACKEND_PORT:-8080}`
 - JWT_SECRET defaults to weak `12345678` - override in production
 - MySQL container needs password: `DB_PASSWORD=root` in `.env`
 - Test database uses H2 in-memory (configured in spring-boot-starter-test)
