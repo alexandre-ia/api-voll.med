@@ -83,7 +83,10 @@ export function extractApiError(err: any, fallback: string): string {
   const data = err?.response?.data;
   if (!data) return fallback;
   if (Array.isArray(data)) {
-    return data.map((e: any) => e.mensagem ?? e.message ?? String(e)).join(' | ');
+    return data.map((e: any) => {
+      const message = e.mensagem ?? e.message ?? String(e);
+      return e.campo ? `${e.campo}: ${message}` : message;
+    }).join(' | ');
   }
   if (typeof data === 'string') return data;
   return data.mensagem ?? data.message ?? fallback;
