@@ -187,14 +187,28 @@ export default function Doctors() {
       toast.error('Preencha os campos obrigatórios');
       return;
     }
+
+    const crm = formData.crm.replace(/\D/g, '');
+    if (!/^\d{4,6}$/.test(crm)) {
+      toast.error('CRM deve conter somente 4 a 6 dígitos. Exemplo: 1542 ou 123456. Não use UF no CRM.');
+      return;
+    }
+
+    const cep = (formData.endereco.cep ?? '').replace(/\D/g, '');
+    if (!/^\d{8}$/.test(cep)) {
+      toast.error('CEP deve conter exatamente 8 dígitos. Exemplo: 74000000.');
+      return;
+    }
+
     setSaving(true);
     try {
+      const endereco = { ...formData.endereco, cep } as EnderecoPayload;
       if (editingId) {
         const payload: MedicoAtualizacao = {
           id: editingId,
           nome: formData.nome,
           telefone: formData.telefone,
-          endereco: formData.endereco as EnderecoPayload,
+          endereco,
         };
         await medicosApi.update(payload);
         toast.success('Médico atualizado com sucesso');
@@ -203,9 +217,9 @@ export default function Doctors() {
           nome: formData.nome,
           email: formData.email,
           telefone: formData.telefone,
-          crm: formData.crm,
+          crm,
           especialidadeId: Number(formData.especialidadeId),
-          endereco: formData.endereco as EnderecoPayload,
+          endereco,
         };
         await medicosApi.create(payload);
         toast.success('Médico cadastrado com sucesso');
@@ -480,8 +494,10 @@ export default function Doctors() {
                     id="crm"
                     value={formData.crm}
                     disabled={!!editingId}
-                    onChange={e => setFormData(p => ({ ...p, crm: e.target.value }))}
+                    onChange={e => setFormData(p => ({ ...p, crm: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
                     placeholder="123456"
+                    inputMode="numeric"
+                    maxLength={6}
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -514,9 +530,10 @@ export default function Doctors() {
                   <Input
                     id="cep"
                     value={formData.endereco.cep ?? ''}
-                    onChange={e => setEndereco('cep', e.target.value)}
+                    onChange={e => setEndereco('cep', e.target.value.replace(/\D/g, '').slice(0, 8))}
                     placeholder="74000000"
                     maxLength={8}
+                    inputMode="numeric"
                   />
                 </div>
                 <div>
