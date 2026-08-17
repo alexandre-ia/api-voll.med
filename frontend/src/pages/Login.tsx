@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Stethoscope, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { clearInvalidStoredAuthSession } from '@/lib/authSession'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +21,10 @@ export default function Login() {
   const { login } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
 
+  useEffect(() => {
+    clearInvalidStoredAuthSession()
+  }, [])
+
   const {
     register,
     handleSubmit,
@@ -35,6 +40,8 @@ export default function Login() {
       const status = (err as AxiosError)?.response?.status
       if (status === 401 || status === 403) {
         setAuthError('Credenciais inválidas. Verifique seu login e senha.')
+      } else if (status === 429) {
+        setAuthError('Muitas tentativas. Aguarde 15 minutos antes de tentar novamente.')
       } else {
         setAuthError('Erro ao conectar com o servidor.')
       }

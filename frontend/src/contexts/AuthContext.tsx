@@ -1,7 +1,16 @@
 import { createContext, useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { authApi } from '@/api/auth'
-import type { User, Role, JwtPayload } from '@/types/auth'
+import type { User } from '@/types/auth'
+import {
+  AUTH_SESSION_CHANGED_EVENT,
+  clearStoredAuthSession,
+  emptyAuthSession,
+  getStoredAuthSession,
+  notifyAuthSessionChanged,
+  redirectToLoginIfNeeded,
+  saveAuthToken,
+} from '@/lib/authSession'
 
 interface AuthContextType {
   token: string | null
@@ -13,56 +22,41 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null)
 
-function decodeJwtPayload(token: string): JwtPayload | null {
-  try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-    const json = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
-        .join('')
-    )
-    return JSON.parse(json) as JwtPayload
-  } catch {
-    return null
-  }
-}
-
-function userFromToken(token: string): User | null {
-  const payload = decodeJwtPayload(token)
-  if (!payload) return null
-  return { login: payload.sub, role: payload.role as Role }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
-  const [user, setUser] = useState<User | null>(() => {
-    const t = localStorage.getItem('token')
-    return t ? userFromToken(t) : null
-  })
+  const [session, setSession] = useState(getStoredAuthSession)
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token)
-      setUser(userFromToken(token))
-    } else {
-      localStorage.removeItem('token')
-      setUser(null)
+    function syncSession() {
+      setSession(getStoredAuthSession())
     }
-  }, [token])
+
+    window.addEventListener(AUTH_SESSION_CHANGED_EVENT, syncSession)
+    window.addEventListener('storage', syncSession)
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, syncSession)
+      window.removeEventListener('storage', syncSession)
+    }
+  }, [])
 
   const login = useCallback(async (loginStr: string, senha: string) => {
     const { tokenJWT } = await authApi.login({ login: loginStr, senha })
-    setToken(tokenJWT)
+    const nextSession = saveAuthToken(tokenJWT)
+    setSession(nextSession)
+    notifyAuthSessionChanged()
   }, [])
 
   const logout = useCallback(() => {
-    setToken(null)
-    window.location.href = '/login'
+    clearStoredAuthSession()
+    setSession(emptyAuthSession)
+    notifyAuthSessionChanged()
+    redirectToLoginIfNeeded()
   }, [])
 
+  const { token, user } = session
+
   return (
-    <AuthContext.Provider value={{ token, user, isAuthenticated: !!token, login, logout }}>
+    <AuthContext.Provider value={{ token, user, isAuthenticated: !!token && !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

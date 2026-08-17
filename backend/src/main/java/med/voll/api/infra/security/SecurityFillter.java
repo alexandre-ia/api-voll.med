@@ -25,6 +25,16 @@ public class SecurityFillter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        var path = request.getServletPath();
+        if (path == null || path.isBlank()) {
+            path = request.getRequestURI();
+        }
+
+        return "POST".equalsIgnoreCase(request.getMethod()) && "/auth/login".equals(path);
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var tokenJWT = recuperarToken(request);
 
