@@ -134,6 +134,8 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 7 | Rate limiting: máx. 10 requisições por IP em 15 min em `/auth/*` |
 | 8 | Admin inicial criado automaticamente se não existir e `ADMIN_PASSWORD` estiver configurado |
 | 9 | `ROLE_ADMIN` pode criar `ROLE_FUNCIONARIO`, `ROLE_MEDICO`, `ROLE_AUDITOR` e `ROLE_GESTOR`; não pode criar outro `ROLE_ADMIN` pela API |
+| 10 | Ao criar `ROLE_MEDICO`, `medicoId` é obrigatório e deve apontar para médico ativo ainda sem usuário vinculado |
+| 11 | `medicoId` não pode ser enviado para perfis diferentes de `ROLE_MEDICO` |
 
 ---
 
@@ -149,6 +151,7 @@ Modelo profissional recomendado:
 | Endpoint | ADMIN | FUNCIONARIO | MEDICO | AUDITOR/GESTOR |
 |----------|:-----:|:-----------:|:------:|:--------------:|
 | `POST /auth/cadastro` | ✅ | — | — | — |
+| `GET /auth/usuarios` | ✅ | — | — | — |
 | `POST /especialidades` | — | ✅ | — | — |
 | `PUT /especialidades/{id}` | — | ✅ | — | — |
 | `DELETE /especialidades/{id}` | — | ✅ | — | — |
@@ -188,4 +191,7 @@ Modelo profissional recomendado:
 | `POST /atestados` | — | — | ✅ (do seu prontuário) | — |
 | `GET /atestados/{id}` | — | ✅ (leitura operacional) | ✅ (apenas os seus) | ✅ |
 | `GET /atestados/paciente/{id}` | — | ✅ (leitura operacional) | ✅ (apenas os seus) | ✅ |
+| `POST /ia/pre-diagnostico` | — | — | ✅ | — |
+| `POST /ia/gerar-laudo` | — | — | ✅ | — |
+| `GET /ia/resumo-historico/{pacienteId}` | — | — | ✅ | — |
 | `GET /auditoria/**` | — | — | — | ✅ |

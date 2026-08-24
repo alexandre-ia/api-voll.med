@@ -20,7 +20,7 @@ cd backend
 - **Framework**: Spring Boot 3.5.4, Java 17, Maven
 - **Database**: MySQL 8.0 on port 3307 (via Docker host mapping; backend container uses `db:3306`)
 - **Migrations**: Flyway in `backend/src/main/resources/db/migration/`
-- **Auth**: JWT via `/login` (public); other endpoints require Bearer token
+- **Auth**: JWT via `/auth/login` (public); other endpoints require Bearer token
 - **Soft deletes**: Entities use `ativo` field, not physical deletes
 - **Pagination**: 10 records per page (default)
 - **API Docs**: Swagger UI at `/swagger-ui.html`
@@ -36,9 +36,9 @@ V1–V25 applied (next: V26)
 
 ## Tests
 
-140 tests passing. Run from `backend/`: `./mvnw test`
+143 tests passing. Run from `backend/`: `./mvnw test`
 
-- Unit/context: `ApiApplicationTests` (1), `AgendaDeConsultasTest` (17), `ProntuarioServiceTest` (7), `EspecialidadeServiceTest` (8), `IaServiceTest` (6), `AuditoriaProntuarioAspectTest` (2)
+- Unit/context/security: `ApiApplicationTests` (1), `AgendaDeConsultasTest` (17), `ProntuarioServiceTest` (7), `EspecialidadeServiceTest` (8), `IaServiceTest` (6), `AuditoriaProntuarioAspectTest` (2), `SecurityFillterTest` (3)
 - Controller (`@WebMvcTest`): `ConsultaControllerTest`, `MedicoControllerTest`, `PacientesControllerTest`, `ProntuarioControllerTest`, `PrescricaoControllerTest`, `AtestadoControllerTest`, `EspecialidadeControllerTest`, `AutenticacaoControllerTest`, `ConvenioControllerTest`, `ConvenioPacienteControllerTest`, `MedicoConvenioControllerTest`, `DisponibilidadeMedicoControllerTest`, `AuditoriaControllerTest` (4)
 - See `docs/TESTES.md` for full strategy
 
@@ -47,7 +47,7 @@ V1–V25 applied (next: V26)
 - `backend/.env` file must exist for backend configuration and Docker Compose command above (DB_PASSWORD=root)
 - `backend/.env.example` contains development-only defaults; copy it to `backend/.env` and change secrets outside local dev
 - Fullstack Docker Compose publishes frontend on `${FRONTEND_PORT:-3000}` and backend on `${BACKEND_PORT:-8080}`
-- JWT_SECRET defaults to weak `12345678` - override in production
+- `JWT_SECRET` must be configured; `.env.example` contains a development-only value that must be replaced outside local dev
 - MySQL container needs password: `DB_PASSWORD=root` in `.env`
 - Test database uses H2 in-memory (configured in spring-boot-starter-test)
 - `SecurityFillter` and `RateLimitFilter` have `FilterRegistrationBean` disabling auto-registration — never remove them (Spring Security 6.5+ requirement)

@@ -1,6 +1,6 @@
 # Testes Automatizados — API Voll.med
 
-Suite com **140 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
+Suite com **143 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
 
 ---
 
@@ -62,6 +62,7 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 | `EspecialidadeServiceTest` | 8 | CRUD, nome duplicado (409), inativação |
 | `IaServiceTest` | 6 | Mock do `RestClient`, vínculo médico, sem prontuários, pré-diagnóstico, laudo, resumo histórico |
 | `AuditoriaProntuarioAspectTest` | 2 | Auditoria AOP para prescrição e atestado com tipo/id de recurso clínico |
+| `SecurityFillterTest` | 3 | Validação de token JWT, autenticação no `SecurityContext` e bypass de requisições sem token |
 
 ### Testes de controller
 
@@ -135,6 +136,15 @@ Sempre adicionar `.with(csrf())`. Sem CSRF token, Spring Security retorna 403 me
 ### Validação dos containers
 
 O erro `SQL State: 08S01 / Communications link failure` no `backend-voll` indica falha de conexão inicial com o MySQL. A configuração Docker Compose usa healthcheck SQL real no `db` e retries do Flyway para evitar corrida de inicialização entre MySQL e backend.
+
+O erro `SQL State: HY000 / Error Code: 1130` com mensagem `Host '<ip>' is not allowed to connect to this MySQL server`, ou `Access denied for user 'root'@'localhost'` ao testar o próprio container, normalmente indica volume MySQL antigo com senha/grants incompatíveis com o `backend/.env` atual. Em ambiente local descartável, recriar o volume resolve:
+
+```bash
+docker compose --env-file backend/.env down -v
+docker compose --env-file backend/.env up --build
+```
+
+Não usar `down -v` se houver dados locais que precisam ser preservados.
 
 Com Docker Desktop ativo, validar a stack com:
 

@@ -8,9 +8,9 @@ Sistema Fullstack para gerenciamento de clínica médica, desenvolvido a partir 
 
 * Sistema fullstack de gestão clínica
 * Backend em Spring Boot com regras de negócio avançadas
-* Frontend em React em desenvolvimento
+* Frontend em React conectado à API real
 * Integração com IA clínica (Anthropic API)
-* 140 testes automatizados no backend
+* 143 testes automatizados no backend
 * Arquitetura organizada e documentada
 
 ---
@@ -20,7 +20,7 @@ Sistema Fullstack para gerenciamento de clínica médica, desenvolvido a partir 
 O projeto começou como uma API simples de gerenciamento de clínica, mas foi expandido para um sistema mais completo, incluindo:
 
 * Backend robusto com regras de negócio complexas
-* Estrutura preparada para frontend
+* Frontend React com módulos operacionais conectados à API
 * Integração com serviços de Inteligência Artificial
 * Documentação técnica e arquitetura organizada
 
@@ -30,7 +30,7 @@ O projeto começou como uma API simples de gerenciamento de clínica, mas foi ex
 
 * ✔️ Gestão de médicos, pacientes e consultas
 * ✔️ Regras de negócio avançadas (além do CRUD básico)
-* ✔️ Integração com IA para processamento clínico
+* ✔️ Integração com IA para processamento clínico no backend e no frontend
 * ✔️ Estrutura fullstack (backend + frontend)
 * ✔️ Dockerização da aplicação
 * ✔️ Documentação técnica em `/docs`
@@ -73,7 +73,7 @@ Saída:
 
 ## 🎨 Frontend
 
-O frontend está em desenvolvimento e segue uma arquitetura definida:
+O frontend já possui módulos operacionais conectados à API real e segue uma arquitetura definida:
 
 📄 `frontend/docs/ARCHITECTURE.md`
 
@@ -88,6 +88,7 @@ Objetivo:
 
 * Interface moderna e responsiva
 * Integração completa com o backend
+* Telas para dashboard, cadastros, agenda, prontuários, convênios, auditoria e IA clínica
 
 ---
 
@@ -207,7 +208,7 @@ cd backend
 ./mvnw test
 ```
 
-✔️ Suite atual do backend: **140 testes**
+✔️ Suite atual do backend: **143 testes**
 
 ---
 
@@ -234,9 +235,9 @@ Perfis principais:
 
 🚧 Projeto em evolução ativa
 
-* Expansão do frontend
-* Evolução da integração com IA
-* Novas regras de negócio em desenvolvimento
+* Backend completo até a migration `V25`
+* Frontend conectado à API real, incluindo IA clínica
+* Próximos focos sugeridos: otimização de bundle e testes E2E smoke
 
 ---
 

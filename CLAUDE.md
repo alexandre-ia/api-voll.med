@@ -35,6 +35,7 @@ A aplicação lê `.env` via `spring.config.import=optional:file:.env[.propertie
 | `DB_PASSWORD` | `spring.datasource.password` | Senha do MySQL (padrão: `root`) |
 | `ADMIN_LOGIN` | `admin.login` | Login do admin inicial (padrão: `admin@vollmed.com`) |
 | `ADMIN_PASSWORD` | `admin.password` | Senha do admin inicial — **obrigatório para criar o admin** |
+| `ANTHROPIC_API_KEY` | `anthropic.api.key` | Chave da Anthropic; app inicia sem ela, mas chamadas `/ia/*` falham em runtime |
 
 > **Importante:** Nunca usar `@Value("${NOME_VARIAVEL_ENV}")` diretamente. Sempre mapear em `application.properties` primeiro e usar `@Value("${propriedade.spring}")`. Este é o padrão adotado no projeto.
 
@@ -72,9 +73,10 @@ public FilterRegistrationBean<SecurityFillter> securityFillterRegistration(Secur
 
 ### Perfis de usuário
 
-- `ROLE_ADMIN` — cria usuários via `POST /auth/cadastro`
-- `ROLE_FUNCIONARIO` — acesso completo à API
-- `ROLE_MEDICO` — deve ver apenas consultas vinculadas ao seu cadastro (vínculo `Medico.usuario_id` existe no banco, mas o filtro por médico logado ainda não está implementado — ver `docs/PLANEJAMENTO.md`)
+- `ROLE_ADMIN` — administração técnica e usuários via `POST /auth/cadastro` e `GET /auth/usuarios`; não acessa dados clínicos nem cadastros operacionais por padrão
+- `ROLE_FUNCIONARIO` — operação da clínica, cadastros, agenda, convênios e leitura operacional necessária
+- `ROLE_MEDICO` — atendimento clínico; vê apenas dados assistenciais vinculados ao médico logado e acessa IA clínica
+- `ROLE_AUDITOR` / `ROLE_GESTOR` — leitura ampla, auditoria LGPD e relatórios sensíveis, sempre com rastreabilidade
 
 ### Admin inicial (AdminInitializer)
 
@@ -91,7 +93,7 @@ Logs para acompanhar:
 - `ddl-auto=validate` — Hibernate valida o schema mas não o altera; toda mudança estrutural exige migration Flyway
 - Migrations em `backend/src/main/resources/db/migration/` com prefixo `V{n}__descricao.sql`
 - Última migration aplicada: `V25` — próxima será `V26`
-- Exclusão lógica via campo `ativo` em médicos, pacientes e consultas
+- Exclusão lógica via campo `ativo` em médicos, pacientes, consultas, prontuários, atestados, convênios e disponibilidades
 
 ### Regras de negócio de consultas (AgendaDeConsultas)
 
@@ -173,7 +175,7 @@ frontend/src/
 │   ├── Doctors.tsx, Patients.tsx, Appointments.tsx
 │   ├── MedicalRecords.tsx, Prescriptions.tsx, Certificates.tsx
 │   ├── Specialties.tsx, Insurance.tsx
-│   ├── Users.tsx
+│   ├── Users.tsx, Availability.tsx, Audit.tsx, ClinicalAI.tsx
 │   └── NotFound.tsx
 ├── types/             # auth.ts (Role, User, JwtPayload), api.ts (todos os DTOs de domínio)
 └── App.tsx            # router wouter + AuthProvider + ThemeProvider
@@ -193,6 +195,10 @@ frontend/src/
 | `/certificates` | Atestados | privada |
 | `/specialties` | Especialidades | privada |
 | `/insurance` | Convênios | privada |
+| `/users` | Usuários | privada; backend restringe a `ROLE_ADMIN` |
+| `/availability` | Disponibilidade médica | privada, não ADMIN |
+| `/audit` | Auditoria LGPD | `ROLE_AUDITOR`/`ROLE_GESTOR` |
+| `/clinical-ai` | IA Clínica | `ROLE_MEDICO` |
 
 ### Estado atual das páginas
 
@@ -200,7 +206,7 @@ Todas as páginas estão conectadas à API real. `mockData.ts` removido. Cada do
 
 ### CORS
 
-Backend libera `http://localhost:5173` em dev. Para produção, atualizar `SecurityConfigurations`.
+Backend libera `localhost:3000`, `localhost:5173`, `localhost:5174` e domínios Vercel configurados em `SecurityConfigurations`. Para produção própria, atualizar a lista/padrão de CORS ali.
 
 ## Planejamento de evolução
 

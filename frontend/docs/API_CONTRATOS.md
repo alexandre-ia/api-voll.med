@@ -29,12 +29,15 @@ Perfis de acesso recomendados:
 ### POST /auth/cadastro (ROLE_ADMIN)
 ```ts
 // Request
-{ login: string, senha: string, role: 'ROLE_FUNCIONARIO' | 'ROLE_MEDICO' | 'ROLE_AUDITOR' | 'ROLE_GESTOR' }
+// medicoId é obrigatório para ROLE_MEDICO e deve apontar para um médico ativo ainda sem usuário vinculado.
+{ login: string, senha: string, role: 'ROLE_FUNCIONARIO' | 'ROLE_MEDICO' | 'ROLE_AUDITOR' | 'ROLE_GESTOR', medicoId?: number }
 
 // Response 201
 { id: number, login: string, role: 'ROLE_FUNCIONARIO' | 'ROLE_MEDICO' | 'ROLE_AUDITOR' | 'ROLE_GESTOR' }
 
 // Response 409 — login já existe
+// Response 409 — medicoId inexistente, inativo ou já vinculado quando role=ROLE_MEDICO
+// Response 400 — medicoId ausente para ROLE_MEDICO ou informado para outro perfil
 // Response 403 — tentativa de criar ROLE_ADMIN
 ```
 

@@ -229,7 +229,7 @@ Requer habilitar `@EnableJpaAuditing` na aplicação.
 
 ### IA para Auxílio Médico
 
-Integração com a Claude API (Anthropic) para adicionar inteligência clínica ao sistema. As três funcionalidades abaixo dependem do **Prontuário Eletrônico (1.1)** — implementar após ele estar pronto.
+Integração com a Claude API (Anthropic) para adicionar inteligência clínica ao sistema. As três funcionalidades abaixo foram implementadas no backend e no frontend após o **Prontuário Eletrônico (1.1)**.
 
 ---
 
@@ -245,13 +245,13 @@ O médico informa os sintomas relatados pelo paciente e a IA retorna suporte dia
 - Sinais de alerta
 - Classificação de risco
 
-**Endpoint sugerido:**
+**Endpoint implementado:**
 ```
 POST /ia/pre-diagnostico
-Body: { "consulta_id": 1, "sintomas": "febre há 3 dias, dor no corpo, tosse seca" }
+Body: { "consultaId": 1, "sintomas": "febre há 3 dias, dor no corpo, tosse seca" }
 ```
 
-**Dependências:** Prontuário Eletrônico (1.1)
+**Status:** implementado no backend (`IaController`/`IaService`) e no frontend em `/clinical-ai`.
 
 ---
 
@@ -267,13 +267,13 @@ O médico escreve anotações livres e a IA estrutura um laudo clínico profissi
 - Impressão diagnóstica
 - Plano terapêutico sugerido
 
-**Endpoint sugerido:**
+**Endpoint implementado:**
 ```
 POST /ia/gerar-laudo
-Body: { "prontuario_id": 1, "anotacoes": "..." }
+Body: { "prontuarioId": 1, "anotacoes": "..." }
 ```
 
-**Dependências:** Prontuário Eletrônico (1.1)
+**Status:** implementado no backend (`IaController`/`IaService`) e no frontend em `/clinical-ai`.
 
 ---
 
@@ -289,10 +289,10 @@ Com múltiplas consultas registradas, a IA gera um resumo clínico consolidado d
 
 **Endpoint sugerido:**
 ```
-GET /ia/resumo-historico/{paciente_id}
+GET /ia/resumo-historico/{pacienteId}
 ```
 
-**Dependências:** histórico de prontuários acumulado (mín. 3 consultas para ser útil)
+**Status:** implementado no backend (`IaController`/`IaService`) e no frontend em `/clinical-ai`. O resultado fica mais útil com histórico de prontuários acumulado.
 
 ---
 

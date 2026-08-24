@@ -16,7 +16,7 @@ Perfis recomendados para ambiente profissional:
 | Método | Endpoint | Descrição | Roles |
 |--------|----------|-----------|-------|
 | `POST` | `/auth/login` | Autenticar e obter JWT | Público |
-| `POST` | `/auth/cadastro` | Criar novo usuário operacional (`FUNCIONARIO`, `MEDICO`, `AUDITOR` ou `GESTOR`) | ADMIN |
+| `POST` | `/auth/cadastro` | Criar novo usuário operacional (`FUNCIONARIO`, `MEDICO`, `AUDITOR` ou `GESTOR`); `ROLE_MEDICO` exige `medicoId` livre | ADMIN |
 | `GET` | `/auth/usuarios` | Listar usuários cadastrados (paginado) | ADMIN |
 
 ---
