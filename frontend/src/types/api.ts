@@ -188,6 +188,7 @@ export interface PrescricaoListagem {
 
 // --- Consulta ---
 export type Prioridade = 'ROTINA' | 'PRIORITARIO' | 'URGENCIA'
+export type TipoConsulta = 'NORMAL' | 'RETORNO'
 export type MotivoCancelamento = 'PACIENTE_DESISTIU' | 'MEDICO_CANCELOU' | 'OUTROS'
 
 export interface ConsultaAgendamento {
@@ -290,5 +291,5 @@ export interface ConsultaListagem {
   nomePaciente: string
   dataHora: string
   prioridade: Prioridade
-  tipo: string
+  tipo: TipoConsulta
 }
