@@ -2,7 +2,9 @@ package med.voll.api.domain.medico;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +20,12 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
     // Método para listagem paginada (já estava correto)
     Page<Medico> findAllByAtivoTrue(Pageable paginacao);
+
+    Page<Medico> findAllByAtivoTrueAndUsuarioIsNull(Pageable paginacao);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM Medico m WHERE m.id = :id")
+    Optional<Medico> findByIdComBloqueio(@Param("id") Long id);
 
     @Query("SELECT m FROM Medico m WHERE m.ativo = true AND m.usuario.id = :usuarioId")
     Page<Medico> findAllByAtivoTrueAndUsuarioId(Pageable paginacao, @Param("usuarioId") Long usuarioId);

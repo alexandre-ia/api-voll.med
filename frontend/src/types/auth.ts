@@ -28,10 +28,16 @@ export interface CadastroUsuarioPayload {
   medicoId?: number
 }
 
+export interface MedicoDisponivelVinculoUsuario {
+  id: number
+  nome: string
+  crm: string
+}
+
 export interface UsuarioDetalhamento {
   id: number
   login: string
-  role: CadastroUsuarioRole
+  role: Role
 }
 
 export interface JwtPayload {

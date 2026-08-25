@@ -27,6 +27,13 @@ function PrivateRoute({ component: Component }: { component: React.ComponentType
   return <Component />;
 }
 
+function AdminRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Redirect to="/login" />;
+  if (user?.role !== 'ROLE_ADMIN') return <Redirect to="/" />;
+  return <Component />;
+}
+
 function NonAdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -54,7 +61,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/" component={() => <NonAdminRoute component={Dashboard} />} />
-      <Route path="/users" component={() => <PrivateRoute component={Users} />} />
+      <Route path="/users" component={() => <AdminRoute component={Users} />} />
       <Route path="/doctors" component={() => <PrivateRoute component={Doctors} />} />
       <Route path="/patients" component={() => <NonAdminRoute component={Patients} />} />
       <Route path="/appointments" component={() => <NonAdminRoute component={Appointments} />} />

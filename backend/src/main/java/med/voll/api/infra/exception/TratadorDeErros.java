@@ -1,6 +1,7 @@
 package med.voll.api.infra.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import med.voll.api.exception.ConflitoException;
 import med.voll.api.exception.ValidacaoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,12 @@ public class TratadorDeErros {
     public ResponseEntity<DadosErroValidacao> tratarErroValidacaoNegocio(ValidacaoException ex) {
         return ResponseEntity.badRequest()
                 .body(new DadosErroValidacao("regra_negocio", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<DadosErroValidacao> tratarErroConflito(ConflitoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new DadosErroValidacao("conflito", ex.getMessage()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

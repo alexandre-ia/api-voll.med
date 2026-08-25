@@ -41,6 +41,23 @@ function unauthorizedAdapter(capture: { config?: InternalAxiosRequestConfig }): 
   }
 }
 
+function forbiddenAdapter(capture: { config?: InternalAxiosRequestConfig }): AxiosAdapter {
+  return async (config) => {
+    capture.config = config as InternalAxiosRequestConfig
+    return Promise.reject({
+      config,
+      response: {
+        data: 'Acesso negado',
+        status: 403,
+        statusText: 'Forbidden',
+        headers: {},
+        config,
+      },
+      isAxiosError: true,
+    })
+  }
+}
+
 describe('api axios auth interceptor', () => {
   const originalAdapter = api.defaults.adapter
 
@@ -99,5 +116,19 @@ describe('api axios auth interceptor', () => {
 
     expect(authorizationHeader(capture.config!)).toBeUndefined()
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBe(token)
+  })
+
+  it('mantém a sessão quando rota protegida retorna 403', async () => {
+    const capture: { config?: InternalAxiosRequestConfig } = {}
+    const token = createJwt()
+    localStorage.setItem(AUTH_TOKEN_KEY, token)
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token)
+    api.defaults.adapter = forbiddenAdapter(capture)
+
+    await expect(api.get('/auth/medicos-disponiveis')).rejects.toMatchObject({ response: { status: 403 } })
+
+    expect(authorizationHeader(capture.config!)).toBe(`Bearer ${token}`)
+    expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBe(token)
+    expect(sessionStorage.getItem(AUTH_TOKEN_KEY)).toBe(token)
   })
 })

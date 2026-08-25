@@ -31,12 +31,10 @@ import {
 import { UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '@/api/auth';
-import { medicosApi } from '@/api/medicos';
-import type { UsuarioDetalhamento } from '@/types/auth';
-import type { CadastroUsuarioRole } from '@/types/auth';
-import type { MedicoListagem } from '@/types/api';
+import type { CadastroUsuarioRole, MedicoDisponivelVinculoUsuario, UsuarioDetalhamento } from '@/types/auth';
 
 const roleLabels: Record<string, string> = {
+  ROLE_ADMIN: 'Administrador',
   ROLE_FUNCIONARIO: 'Funcionário',
   ROLE_MEDICO: 'Médico',
   ROLE_AUDITOR: 'Auditor',
@@ -51,6 +49,8 @@ interface FormState {
   medicoId: string
 }
 
+type DoctorLoadState = 'idle' | 'loading' | 'success' | 'empty' | 'error';
+
 const emptyForm = (): FormState => ({ login: '', senha: '', confirmarSenha: '', role: '', medicoId: '' });
 
 export default function Users() {
@@ -59,10 +59,18 @@ export default function Users() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [doctors, setDoctors] = useState<MedicoListagem[]>([]);
+  const [doctors, setDoctors] = useState<MedicoDisponivelVinculoUsuario[]>([]);
+  const [doctorLoadState, setDoctorLoadState] = useState<DoctorLoadState>('idle');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormState>(emptyForm());
   const [saving, setSaving] = useState(false);
+
+  const loginValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.login.trim());
+  const senhaValida = formData.senha.length >= 8 && formData.senha.length <= 128;
+  const senhasConferem = formData.senha === formData.confirmarSenha;
+  const medicoSelecionado = formData.role !== 'ROLE_MEDICO' || (doctorLoadState === 'success' && Boolean(formData.medicoId));
+  const formValido = loginValido && senhaValida && senhasConferem && Boolean(formData.role) && medicoSelecionado;
+  const medicoSelectDisabled = doctorLoadState === 'loading' || doctorLoadState === 'error' || doctorLoadState === 'empty';
 
   const fetchUsers = async (p = page) => {
     setLoading(true);
@@ -81,20 +89,52 @@ export default function Users() {
     fetchUsers(page);
   }, [page]);
 
-  useEffect(() => {
-    if (formData.role === 'ROLE_MEDICO' && doctors.length === 0) {
-      medicosApi.list(0, 100).then(r => setDoctors(r.content)).catch(() => {});
+  const fetchDoctors = async () => {
+    setDoctorLoadState('loading');
+    setFormData(p => ({ ...p, medicoId: '' }));
+    try {
+      const result = await authApi.listMedicosDisponiveis(0, 100);
+      setDoctors(result.content);
+      setDoctorLoadState(result.content.length > 0 ? 'success' : 'empty');
+    } catch {
+      setDoctors([]);
+      setDoctorLoadState('error');
     }
-  }, [formData.role]);
+  };
+
+  useEffect(() => {
+    if (formData.role === 'ROLE_MEDICO' && doctorLoadState === 'idle') {
+      fetchDoctors();
+    }
+    if (formData.role !== 'ROLE_MEDICO' && formData.medicoId) {
+      setFormData(p => ({ ...p, medicoId: '' }));
+    }
+  }, [formData.role, doctorLoadState, formData.medicoId]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFormData(emptyForm());
   };
 
+  const getApiMessage = (err: unknown, fallback: string) => {
+    const data = (err as { response?: { data?: unknown } })?.response?.data;
+    if (typeof data === 'string') return data;
+    if (Array.isArray(data) && typeof data[0]?.mensagem === 'string') return data[0].mensagem;
+    if (data && typeof data === 'object' && 'mensagem' in data && typeof data.mensagem === 'string') return data.mensagem;
+    return fallback;
+  };
+
   const handleSave = async () => {
-    if (!formData.login || !formData.senha || !formData.role) {
+    if (!formData.login.trim() || !formData.senha || !formData.role) {
       toast.error('Preencha login, senha e perfil');
+      return;
+    }
+    if (!loginValido) {
+      toast.error('Informe um e-mail válido para o login');
+      return;
+    }
+    if (!senhaValida) {
+      toast.error('A senha deve ter entre 8 e 128 caracteres');
       return;
     }
     if (formData.senha !== formData.confirmarSenha) {
@@ -107,24 +147,32 @@ export default function Users() {
     }
     setSaving(true);
     try {
+      const medicoId = formData.role === 'ROLE_MEDICO' ? Number(formData.medicoId) : undefined;
       await authApi.cadastrarUsuario({
-        login: formData.login,
+        login: formData.login.trim(),
         senha: formData.senha,
         role: formData.role as CadastroUsuarioRole,
-        ...(formData.medicoId && { medicoId: Number(formData.medicoId) }),
+        ...(medicoId && { medicoId }),
       });
       toast.success('Usuário cadastrado com sucesso');
+      if (medicoId) {
+        setDoctors([]);
+        setDoctorLoadState('idle');
+      }
       handleCloseModal();
-      setPage(0);
-      fetchUsers(0);
-    } catch (err: any) {
-      const status = err?.response?.status;
-      if (status === 409) {
-        toast.error('Login já cadastrado');
-      } else if (status === 403) {
-        toast.error('Perfil ADMIN não é permitido');
+      if (page === 0) {
+        fetchUsers(0);
       } else {
-        toast.error(err?.response?.data?.mensagem ?? 'Erro ao cadastrar usuário');
+        setPage(0);
+      }
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 409) {
+        toast.error(getApiMessage(err, 'Login já cadastrado ou médico indisponível para vínculo'));
+      } else if (status === 403) {
+        toast.error(getApiMessage(err, 'Você não tem permissão para cadastrar usuários'));
+      } else {
+        toast.error(getApiMessage(err, 'Erro ao cadastrar usuário'));
       }
     } finally {
       setSaving(false);
@@ -234,10 +282,13 @@ export default function Users() {
             </div>
             <div>
               <Label className="mb-1.5 block" htmlFor="role">Perfil *</Label>
-              <Select
-                value={formData.role}
-                onValueChange={v => setFormData(p => ({ ...p, role: v as CadastroUsuarioRole, medicoId: '' }))}
-              >
+                <Select
+                  value={formData.role}
+                  onValueChange={v => {
+                    setFormData(p => ({ ...p, role: v as CadastroUsuarioRole, medicoId: '' }));
+                    if (v === 'ROLE_MEDICO') setDoctorLoadState('idle');
+                  }}
+                >
                 <SelectTrigger id="role">
                   <SelectValue placeholder="Selecione o perfil" />
                 </SelectTrigger>
@@ -254,22 +305,36 @@ export default function Users() {
                 <Label className="mb-1.5 block" htmlFor="medicoId">Médico vinculado * (deve estar cadastrado primeiro)</Label>
                 <Select
                   value={formData.medicoId}
+                  disabled={medicoSelectDisabled}
                   onValueChange={v => {
-                    const doc = doctors.find(d => String(d.id) === v);
-                    setFormData(p => ({ ...p, medicoId: v, login: doc?.email ?? p.login }));
+                    setFormData(p => ({ ...p, medicoId: v }));
                   }}
                 >
-                  <SelectTrigger id="medicoId">
-                    <SelectValue placeholder="Selecione o médico" />
+                  <SelectTrigger id="medicoId" className="w-full">
+                    <SelectValue placeholder={doctorLoadState === 'loading' ? 'Carregando médicos...' : 'Selecione o médico'} />
                   </SelectTrigger>
                   <SelectContent>
                     {doctors.map(d => (
                       <SelectItem key={d.id} value={String(d.id)}>
-                        {d.nome} — {d.especialidade} (CRM {d.crm})
+                        {d.nome} (CRM {d.crm})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {doctorLoadState === 'loading' && (
+                  <p className="text-xs text-muted-foreground mt-2">Carregando médicos disponíveis...</p>
+                )}
+                {doctorLoadState === 'empty' && (
+                  <p className="text-xs text-muted-foreground mt-2">Nenhum médico disponível para vínculo.</p>
+                )}
+                {doctorLoadState === 'error' && (
+                  <div className="mt-2 flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                    <span>Erro ao carregar médicos disponíveis.</span>
+                    <Button type="button" variant="outline" size="sm" onClick={fetchDoctors}>
+                      Tentar novamente
+                    </Button>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">
                   O médico precisa estar cadastrado em "Médicos" antes de vincular.
                 </p>
@@ -278,7 +343,7 @@ export default function Users() {
 
             <div className="flex justify-end gap-3 pt-2 border-t">
               <Button variant="outline" onClick={handleCloseModal} disabled={saving}>Cancelar</Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button onClick={handleSave} disabled={saving || !formValido}>
                 {saving ? 'Cadastrando...' : 'Cadastrar'}
               </Button>
             </div>
