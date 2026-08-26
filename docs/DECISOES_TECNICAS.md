@@ -183,6 +183,28 @@ O teste `deveRetornarTokenAoFazerLogin` usa `@WithMockUser` mesmo sendo o endpoi
 
 ---
 
+### Endpoint dedicado `GET /auth/medicos-disponiveis` em vez de liberar ADMIN em `GET /medicos`
+
+O seletor de médicos no cadastro de usuário (`/users`) ficava vazio porque `ROLE_ADMIN` recebe `403` de `GET /medicos` (endpoint operacional, restrito a `FUNCIONARIO`/`MEDICO`/`AUDITOR`/`GESTOR`) e o frontend descartava esse erro silenciosamente (`.catch(() => {})`), tornando a falha indistinguível de uma lista vazia.
+
+**Alternativa descartada:** adicionar `ROLE_ADMIN` aos perfis autorizados em `GET /medicos`.
+
+**Por quê foi descartada:** esse endpoint retorna todos os médicos ativos, incluindo os já vinculados a um usuário, e expõe campos operacionais (`email`, `especialidade`) desnecessários para o ADMIN. Selecionar um médico já vinculado resultaria em `409` no cadastro, e o ADMIN passaria a acessar dados operacionais fora do seu escopo documentado (`docs/REGRAS_DE_NEGOCIO.md`).
+
+**Decisão adotada:** criar `GET /auth/medicos-disponiveis` (só ADMIN), com `MedicoRepository.findAllByAtivoTrueAndUsuarioIsNull` e uma projeção mínima (`DadosMedicoDisponivelVinculoUsuario`: `id`, `nome`, `crm`). O endpoint operacional `GET /medicos` não foi alterado.
+
+---
+
+### Bloqueio pessimista no vínculo médico↔usuário
+
+`AutenticacaoController.cadastrar` fazia *check-then-write* sem lock: duas requisições concorrentes podiam ler o mesmo médico como livre, criar dois usuários `ROLE_MEDICO` e um deles ficar órfão (usuário sem médico vinculado), pois o último `UPDATE` vence.
+
+**Decisão:** mover a criação/vínculo para `UsuarioService.cadastrar` (`@Transactional`) e buscar o médico com `MedicoRepository.findByIdComBloqueio` (`@Lock(PESSIMISTIC_WRITE)`), que segura a linha do médico até o fim da transação. Conflitos de integridade residuais (`DataIntegrityViolationException`) são convertidos para `409` via `ConflitoException`, tratada em `TratadorDeErros`.
+
+**Limitação conhecida:** o teste automatizado cobre a lógica de forma unitária (Mockito), não a concorrência real — a suíte de testes roda em H2 com Flyway desabilitado (`docs/TESTES.md`), que não valida lock pessimista sob carga MySQL real. Um teste de integração com duas requisições simultâneas contra MySQL/Testcontainers ainda não existe.
+
+---
+
 ### `Especialidade` como entidade (V21)
 
 `Especialidade` foi migrada de enum Java para a entidade `EspecialidadeEntity` + tabela `especialidades`. O cadastro de médico passou a receber `especialidadeId` (Long) em vez do nome do enum.
@@ -190,3 +212,15 @@ O teste `deveRetornarTokenAoFazerLogin` usa `@WithMockUser` mesmo sendo o endpoi
 **Por quê:** com enum fixo, adicionar uma nova especialidade exigia um novo deploy. Com a tabela, basta inserir uma linha via migration ou futuramente via endpoint de administração.
 
 **Impacto na API:** o campo `especialidade` nas respostas continua retornando o nome como string (ex: `"CARDIOLOGIA"`) — sem quebra de compatibilidade nos GETs. O payload do `POST /medicos` passou a usar `"especialidadeId": 1`.
+
+---
+
+## Pendências conhecidas
+
+Itens identificados durante a Fase 1 do plano de correções (`GET /auth/medicos-disponiveis` e vínculo de usuário médico) que dependem de decisão de negócio ou ficaram fora do escopo do bugfix:
+
+1. **Login do usuário médico ≠ e-mail do médico por padrão.** O frontend deixou de pré-preencher o login com o e-mail do médico (a projeção `DadosMedicoDisponivelVinculoUsuario` não traz e-mail, propositalmente). Se a regra é que login e e-mail do médico devem ser iguais, isso precisa virar validação explícita no backend — hoje não é imposto.
+2. **Sem paginação real no seletor de médicos.** `GET /auth/medicos-disponiveis` busca até 100 registros de uma vez (`size=100`); se o volume de médicos ativos sem usuário crescer além disso, é necessário adicionar busca/paginação na tela.
+3. **Concorrência sem teste de integração real.** O `@Lock(PESSIMISTIC_WRITE)` em `findByIdComBloqueio` está implementado e coberto por teste unitário, mas não há teste de integração com duas requisições simultâneas contra MySQL (a suíte usa H2 com Flyway desabilitado).
+4. **`nanoid` com vulnerabilidade alta (transitiva).** `npm audit` no frontend reporta 1 vulnerabilidade alta em `nanoid` (via `postcss`); correção (`npm audit fix`) não aplicada por estar fora do escopo desta fase.
+5. **Ciclo de vida de médico inativado após vínculo.** Um usuário `ROLE_MEDICO` já vinculado continua autenticando normalmente mesmo se o médico for inativado depois — comportamento herdado, não alterado nesta fase (ver `AutenticacaoController`/`SecurityFillter`).

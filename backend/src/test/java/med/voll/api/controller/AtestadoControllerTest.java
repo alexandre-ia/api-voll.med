@@ -55,6 +55,14 @@ class AtestadoControllerTest {
         return new Usuario(3L, "admin@test.com", "senha", Perfil.ROLE_ADMIN, null);
     }
 
+    private Usuario usuarioAuditor() {
+        return new Usuario(4L, "auditor@test.com", "senha", Perfil.ROLE_AUDITOR, null);
+    }
+
+    private Usuario usuarioGestor() {
+        return new Usuario(5L, "gestor@test.com", "senha", Perfil.ROLE_GESTOR, null);
+    }
+
     private DadosCadastroAtestado dadosCadastro() {
         return new DadosCadastroAtestado(1L, 3, "J11.1", "Repouso absoluto");
     }
@@ -98,6 +106,28 @@ class AtestadoControllerTest {
     }
 
     @Test
+    @DisplayName("ROLE_AUDITOR deve detalhar atestado e receber 200")
+    void deveDetalharAtestadoComAuditor() throws Exception {
+        when(atestadoService.detalhar(anyLong(), any())).thenReturn(detalhamento());
+
+        mvc.perform(get("/atestados/1")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cid10").value("J11.1"));
+    }
+
+    @Test
+    @DisplayName("ROLE_GESTOR deve detalhar atestado e receber 200")
+    void deveDetalharAtestadoComGestor() throws Exception {
+        when(atestadoService.detalhar(anyLong(), any())).thenReturn(detalhamento());
+
+        mvc.perform(get("/atestados/1")
+                        .with(user(usuarioGestor())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cid10").value("J11.1"));
+    }
+
+    @Test
     @DisplayName("ROLE_ADMIN não deve detalhar atestado — deve receber 403")
     void naoDeveDetalharAtestadoComAdmin() throws Exception {
         mvc.perform(get("/atestados/1")
@@ -113,6 +143,28 @@ class AtestadoControllerTest {
 
         mvc.perform(get("/atestados/paciente/1")
                         .with(user(usuarioFuncionario())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_AUDITOR deve listar atestados por paciente e receber 200")
+    void deveListarAtestadosPorPacienteComAuditor() throws Exception {
+        when(atestadoService.listarPorPaciente(anyLong(), any(Pageable.class), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/atestados/paciente/1")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_GESTOR deve listar atestados por paciente e receber 200")
+    void deveListarAtestadosPorPacienteComGestor() throws Exception {
+        when(atestadoService.listarPorPaciente(anyLong(), any(Pageable.class), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/atestados/paciente/1")
+                        .with(user(usuarioGestor())))
                 .andExpect(status().isOk());
     }
 

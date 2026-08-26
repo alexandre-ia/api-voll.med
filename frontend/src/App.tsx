@@ -21,12 +21,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./hooks/useAuth";
 
-function PrivateRoute({ component: Component }: { component: React.ComponentType }) {
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Redirect to="/login" />;
-  return <Component />;
-}
-
 function AdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -62,7 +56,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/" component={() => <NonAdminRoute component={Dashboard} />} />
       <Route path="/users" component={() => <AdminRoute component={Users} />} />
-      <Route path="/doctors" component={() => <PrivateRoute component={Doctors} />} />
+      <Route path="/doctors" component={() => <NonAdminRoute component={Doctors} />} />
       <Route path="/patients" component={() => <NonAdminRoute component={Patients} />} />
       <Route path="/appointments" component={() => <NonAdminRoute component={Appointments} />} />
       <Route path="/medical-records" component={() => <NonAdminRoute component={MedicalRecords} />} />

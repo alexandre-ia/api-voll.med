@@ -18,6 +18,7 @@ Perfis recomendados para ambiente profissional:
 | `POST` | `/auth/login` | Autenticar e obter JWT | Público |
 | `POST` | `/auth/cadastro` | Criar novo usuário operacional (`FUNCIONARIO`, `MEDICO`, `AUDITOR` ou `GESTOR`); `ROLE_MEDICO` exige `medicoId` livre | ADMIN |
 | `GET` | `/auth/usuarios` | Listar usuários cadastrados (paginado) | ADMIN |
+| `GET` | `/auth/medicos-disponiveis` | Listar médicos ativos ainda sem usuário vinculado (paginado, projeção mínima `id`/`nome`/`crm`), para o formulário de cadastro de usuário médico | ADMIN |
 
 ---
 

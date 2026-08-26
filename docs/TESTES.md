@@ -1,6 +1,6 @@
 # Testes Automatizados — API Voll.med
 
-Suite com **143 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
+Suite com **157 testes**, 0 falhas. JUnit 5 + Mockito + Spring Boot Test.
 
 ---
 
@@ -23,12 +23,15 @@ cd backend
 No frontend, executar a partir de `frontend/`:
 
 ```bash
-npm audit
+npm test
 npm run check
 npm run build
+npm audit
 ```
 
-`npm audit` deve retornar `found 0 vulnerabilities` após o hardening de dependências frontend.
+`npm test` roda Vitest + Testing Library (5 arquivos, 22 testes), incluindo `pages/Users.test.tsx` — carregamento/vazio/erro/retry do seletor de médicos disponíveis, payload de cadastro (com e sem `medicoId`) e tradução do perfil `ROLE_ADMIN` na listagem.
+
+`npm audit` reporta atualmente 1 vulnerabilidade alta (transitiva, `nanoid` via `postcss`), pendente de correção — não introduzida pelo fluxo de cadastro de usuário.
 
 ---
 
@@ -60,6 +63,7 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 | `AgendaDeConsultasTest` | 17 | Todas as validações de agendamento (horário, antecedência, disponibilidade, convênio) e cancelamento |
 | `ProntuarioServiceTest` | 7 | Criação (403/409/400), edição (422 janela expirada, 403 médico errado), 404 |
 | `EspecialidadeServiceTest` | 8 | CRUD, nome duplicado (409), inativação |
+| `UsuarioServiceTest` | 11 | Listagem de médicos disponíveis, cadastro (funcionário/médico), médico inexistente/inativo/já vinculado (409), medicoId ausente/indevido (400), tentativa de criar ADMIN (403), login duplicado (409), conflito de integridade concorrente (409) |
 | `IaServiceTest` | 6 | Mock do `RestClient`, vínculo médico, sem prontuários, pré-diagnóstico, laudo, resumo histórico |
 | `AuditoriaProntuarioAspectTest` | 2 | Auditoria AOP para prescrição e atestado com tipo/id de recurso clínico |
 | `SecurityFillterTest` | 3 | Validação de token JWT, autenticação no `SecurityContext` e bypass de requisições sem token |
@@ -70,7 +74,7 @@ Carregam apenas a camada web (controller + segurança). Services são `@MockBean
 |--------|--------|-------------|
 | `AtestadoControllerTest` | 6 | Emitir (MEDICO), detalhar/listar, 403, 401 |
 | `AuditoriaControllerTest` | 4 | Acesso à trilha LGPD por prontuário/recurso restrito a AUDITOR/GESTOR |
-| `AutenticacaoControllerTest` | 11 | Login (200+token), cadastro/listagem de usuários (ADMIN), validação de vínculo médico, bloqueios por role, login duplicado |
+| `AutenticacaoControllerTest` | 14 | Login (200+token), cadastro/listagem de usuários (ADMIN), validação de vínculo médico, bloqueios por role, login duplicado, `GET /auth/medicos-disponiveis` (200 ADMIN, 403 demais perfis, 401 anônimo) |
 | `ConsultaControllerTest` | 7 | Agendar/cancelar (FUNCIONARIO), listar por roles, 403 para ações indevidas |
 | `ConvenioControllerTest` | 10 | CRUD de convênios, paginação, permissões por role |
 | `ConvenioPacienteControllerTest` | 6 | Associar/listar/remover convênio do paciente e permissões |

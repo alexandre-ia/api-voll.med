@@ -9,7 +9,7 @@ O Voll.med está estruturado como monorepo fullstack com backend Spring Boot, fr
 Estado atual documentado:
 
 - Backend completo até a migration `V25` (`V26` será a próxima).
-- Suite backend com **143 testes** passando em `docs/TESTES.md`.
+- Suite backend com **157 testes** passando em `docs/TESTES.md`.
 - Frontend React 19 conectado à API real, incluindo dashboard operacional, auditoria LGPD e IA clínica.
 - Integração com Anthropic API disponível no backend e consumida pela rota frontend `/clinical-ai`.
 - Docker Compose fullstack usa `backend/.env` via `--env-file backend/.env`.
@@ -37,7 +37,7 @@ Funcionalidades implementadas:
 - Cadastro de usuários em `/auth/cadastro`.
 - Listagem de usuários em `/auth/usuarios`.
 - RBAC com `ROLE_ADMIN`, `ROLE_FUNCIONARIO`, `ROLE_MEDICO`, `ROLE_AUDITOR` e `ROLE_GESTOR`.
-- Vínculo obrigatório de usuário médico com `medicoId` livre ao criar `ROLE_MEDICO`.
+- Vínculo obrigatório de usuário médico com `medicoId` livre ao criar `ROLE_MEDICO`, com descoberta via `GET /auth/medicos-disponiveis` (`ROLE_ADMIN`) e bloqueio pessimista contra vínculo concorrente.
 - CRUD de médicos e pacientes com exclusão lógica.
 - Agendamento e cancelamento de consultas.
 - Triagem por prioridade da consulta.
@@ -65,7 +65,7 @@ Páginas e rotas atuais:
 
 - `/login` — login.
 - `/` — dashboard.
-- `/users` — usuários.
+- `/users` — usuários, restrita a `ROLE_ADMIN` (`AdminRoute`).
 - `/doctors` — médicos.
 - `/patients` — pacientes.
 - `/appointments` — consultas.
@@ -119,13 +119,14 @@ cd backend
 ./mvnw test
 ```
 
-Suite validada: **143 testes**, 0 falhas.
+Suite validada: **157 testes**, 0 falhas.
 
 Validação frontend documentada em `frontend/docs/ARCHITECTURE.md`:
 
 ```bash
 cd frontend
 npm ci
+npm test
 npm run check
 npm run build
 ```
@@ -163,6 +164,7 @@ Não usar `down -v` se houver dados locais a preservar.
 2. Rodar `npm run check` e `npm run build` em `frontend/` após alterações de frontend.
 3. Adicionar E2E smoke tests para login e navegação principal.
 4. Avaliar code splitting para reduzir aviso de chunk grande do Vite.
+5. Resolver os itens em "Pendências conhecidas" de `docs/DECISOES_TECNICAS.md` (login≠e-mail do médico, paginação do seletor de médicos, teste de concorrência real, vulnerabilidade `nanoid`).
 
 ## Conclusão
 

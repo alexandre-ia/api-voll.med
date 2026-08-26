@@ -59,6 +59,10 @@ class ProntuarioControllerTest {
         return new Usuario(4L, "auditor@test.com", "senha", Perfil.ROLE_AUDITOR, null);
     }
 
+    private Usuario usuarioGestor() {
+        return new Usuario(5L, "gestor@test.com", "senha", Perfil.ROLE_GESTOR, null);
+    }
+
     private DadosCadastroProntuario dadosCadastro() {
         return new DadosCadastroProntuario(1L, "Paciente relata dor de cabeça", "Sinusite aguda", "J01.9", "Repouso");
     }
@@ -102,6 +106,28 @@ class ProntuarioControllerTest {
     }
 
     @Test
+    @DisplayName("ROLE_AUDITOR deve listar prontuários e receber 200")
+    void deveListarProntuariosComAuditor() throws Exception {
+        when(prontuarioService.listar(any(Pageable.class), any(Usuario.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/prontuarios")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_GESTOR deve listar prontuários e receber 200")
+    void deveListarProntuariosComGestor() throws Exception {
+        when(prontuarioService.listar(any(Pageable.class), any(Usuario.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/prontuarios")
+                        .with(user(usuarioGestor())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("ROLE_ADMIN não deve listar prontuários — deve receber 403")
     void naoDeveListarProntuariosComAdmin() throws Exception {
         mvc.perform(get("/prontuarios")
@@ -118,6 +144,50 @@ class ProntuarioControllerTest {
                         .with(user(usuarioFuncionario())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nomeMedico").value("Dr. João"));
+    }
+
+    @Test
+    @DisplayName("ROLE_AUDITOR deve detalhar prontuário e receber 200")
+    void deveDetalharProntuarioComAuditor() throws Exception {
+        when(prontuarioService.detalhar(anyLong(), any(Usuario.class))).thenReturn(detalhamento());
+
+        mvc.perform(get("/prontuarios/1")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomeMedico").value("Dr. João"));
+    }
+
+    @Test
+    @DisplayName("ROLE_GESTOR deve detalhar prontuário e receber 200")
+    void deveDetalharProntuarioComGestor() throws Exception {
+        when(prontuarioService.detalhar(anyLong(), any(Usuario.class))).thenReturn(detalhamento());
+
+        mvc.perform(get("/prontuarios/1")
+                        .with(user(usuarioGestor())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nomeMedico").value("Dr. João"));
+    }
+
+    @Test
+    @DisplayName("ROLE_AUDITOR deve listar prontuários por paciente e receber 200")
+    void deveListarProntuariosPorPacienteComAuditor() throws Exception {
+        when(prontuarioService.listarPorPaciente(anyLong(), any(Pageable.class), any(Usuario.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/prontuarios/paciente/1")
+                        .with(user(usuarioAuditor())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("ROLE_GESTOR deve listar prontuários por paciente e receber 200")
+    void deveListarProntuariosPorPacienteComGestor() throws Exception {
+        when(prontuarioService.listarPorPaciente(anyLong(), any(Pageable.class), any(Usuario.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mvc.perform(get("/prontuarios/paciente/1")
+                        .with(user(usuarioGestor())))
+                .andExpect(status().isOk());
     }
 
     @Test

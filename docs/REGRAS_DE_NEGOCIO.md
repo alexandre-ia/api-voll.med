@@ -79,6 +79,8 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 9 | Leitura clínica ampla, quando necessária para auditoria/gestão, deve usar perfil específico (`ROLE_AUDITOR` ou `ROLE_GESTOR`) e ser auditada para prontuários, prescrições e atestados | — |
 | 10 | Exclusão/inativação administrativa de prontuário deve ser restrita a perfil com responsabilidade formal (`ROLE_AUDITOR` ou `ROLE_GESTOR`), não ao admin técnico | — |
 
+> Atenção: a leitura operacional de prontuários por `ROLE_FUNCIONARIO` é uma permissão sensível e deve ser revisada em uma fase futura de privacidade clínica e mínimo acesso necessário.
+
 ---
 
 ## Prescrições
@@ -92,6 +94,8 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 5 | Leitura ampla de prescrições deve usar `ROLE_AUDITOR` ou `ROLE_GESTOR`, com trilha de auditoria por recurso clínico | — |
 | 6 | Receita `SIMPLES` tem validade de 30 dias; `ESPECIAL` de 60 dias (calculado automaticamente) | — |
 | 7 | Toda prescrição deve ter ao menos um item | 400 |
+
+> Atenção: a leitura operacional de prescrições por `ROLE_FUNCIONARIO` é uma permissão sensível e deve ser revisada em uma fase futura de privacidade clínica e mínimo acesso necessário.
 
 ---
 
@@ -108,6 +112,8 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 7 | `cid10` e `observacoes` são opcionais | — |
 | 8 | `dataEmissao` é preenchida automaticamente com a data atual | — |
 | 9 | Exclusão é lógica (campo `ativo = false`), restrita a perfil com responsabilidade formal (`ROLE_AUDITOR` ou `ROLE_GESTOR`) | — |
+
+> Atenção: a leitura operacional de atestados por `ROLE_FUNCIONARIO` é uma permissão sensível e deve ser revisada em uma fase futura de privacidade clínica e mínimo acesso necessário.
 
 ---
 
@@ -136,6 +142,9 @@ Este documento centraliza todas as regras de negócio implementadas na API, serv
 | 9 | `ROLE_ADMIN` pode criar `ROLE_FUNCIONARIO`, `ROLE_MEDICO`, `ROLE_AUDITOR` e `ROLE_GESTOR`; não pode criar outro `ROLE_ADMIN` pela API |
 | 10 | Ao criar `ROLE_MEDICO`, `medicoId` é obrigatório e deve apontar para médico ativo ainda sem usuário vinculado |
 | 11 | `medicoId` não pode ser enviado para perfis diferentes de `ROLE_MEDICO` |
+| 12 | `ROLE_ADMIN` descobre médicos vinculáveis via `GET /auth/medicos-disponiveis` (projeção mínima), não via `GET /medicos` (endpoint operacional, sem acesso para ADMIN) |
+| 13 | O vínculo médico↔usuário usa bloqueio pessimista (`SELECT ... FOR UPDATE`) na linha do médico para impedir que duas requisições concorrentes vinculem o mesmo médico a usuários diferentes |
+| 14 | Criação do usuário e vínculo do médico ocorrem na mesma transação (`UsuarioService.cadastrar`); falha em qualquer etapa reverte ambas |
 
 ---
 
@@ -152,6 +161,7 @@ Modelo profissional recomendado:
 |----------|:-----:|:-----------:|:------:|:--------------:|
 | `POST /auth/cadastro` | ✅ | — | — | — |
 | `GET /auth/usuarios` | ✅ | — | — | — |
+| `GET /auth/medicos-disponiveis` | ✅ | — | — | — |
 | `POST /especialidades` | — | ✅ | — | — |
 | `PUT /especialidades/{id}` | — | ✅ | — | — |
 | `DELETE /especialidades/{id}` | — | ✅ | — | — |
@@ -195,3 +205,15 @@ Modelo profissional recomendado:
 | `POST /ia/gerar-laudo` | — | — | ✅ | — |
 | `GET /ia/resumo-historico/{pacienteId}` | — | — | ✅ | — |
 | `GET /auditoria/**` | — | — | — | ✅ |
+
+## Pendência de Privacidade Clínica
+
+A matriz atual mantém `ROLE_FUNCIONARIO` com leitura operacional de prontuários, prescrições e atestados por compatibilidade com o fluxo documentado da clínica. Essa decisão deve ser reavaliada em uma fase futura específica de privacidade clínica e mínimo acesso necessário.
+
+Essa fase deve definir, implementar e testar se `ROLE_FUNCIONARIO` pode:
+
+- Ver prontuário completo.
+- Ver apenas resumo operacional sem conteúdo clínico sensível.
+- Não ver conteúdo clínico.
+- Acessar prescrições e atestados.
+- Gerar auditoria ao visualizar dados sensíveis.
