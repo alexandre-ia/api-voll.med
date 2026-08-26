@@ -38,7 +38,7 @@ frontend/src/
 Arquivos atuais em `frontend/src/api/`:
 
 - `axios.ts` — instância Axios com interceptors de JWT e tratamento de 401.
-- `auth.ts` — login e usuários.
+- `auth.ts` — login, usuários e médicos disponíveis para vínculo (`GET /auth/medicos-disponiveis`, só `ROLE_ADMIN`).
 - `medicos.ts` — médicos.
 - `pacientes.ts` — pacientes.
 - `consultas.ts` — consultas.
@@ -68,8 +68,8 @@ Rotas atuais em `App.tsx`:
 |------|--------|--------|
 | `/login` | `Login` | Pública |
 | `/` | `Dashboard` | Privada, exceto ADMIN/AUDITOR/GESTOR redirecionados |
-| `/users` | `Users` | Privada |
-| `/doctors` | `Doctors` | Privada |
+| `/users` | `Users` | `AdminRoute` — apenas `ROLE_ADMIN` (redireciona para `/` demais perfis) |
+| `/doctors` | `Doctors` | Privada, não ADMIN |
 | `/patients` | `Patients` | Privada, não ADMIN |
 | `/appointments` | `Appointments` | Privada, não ADMIN |
 | `/medical-records` | `MedicalRecords` | Privada, não ADMIN |

@@ -35,16 +35,28 @@ Perfis de acesso recomendados:
 // Response 201
 { id: number, login: string, role: 'ROLE_FUNCIONARIO' | 'ROLE_MEDICO' | 'ROLE_AUDITOR' | 'ROLE_GESTOR' }
 
-// Response 409 — login já existe
-// Response 409 — medicoId inexistente, inativo ou já vinculado quando role=ROLE_MEDICO
+// Response 409 — login já existe, ou medicoId inexistente/inativo/já vinculado quando role=ROLE_MEDICO
+// Corpo do 409: { campo: "conflito", mensagem: string } — a mensagem distingue a causa, não presumir "login duplicado" por padrão
 // Response 400 — medicoId ausente para ROLE_MEDICO ou informado para outro perfil
-// Response 403 — tentativa de criar ROLE_ADMIN
+// Response 403 — tentativa de criar ROLE_ADMIN, ou usuário autenticado sem ROLE_ADMIN
 ```
 
 ### GET /auth/usuarios (ROLE_ADMIN)
 ```ts
 // Response 200 — Page<UsuarioDetalhamento>
 { content: Array<{ id: number, login: string, role: string }>, totalElements: number, totalPages: number, number: number, size: number }
+```
+
+### GET /auth/medicos-disponiveis (ROLE_ADMIN)
+```ts
+// Retorna apenas médicos ativos que ainda não possuem usuário vinculado — para o formulário
+// de cadastro de usuário ROLE_MEDICO. Não usar GET /medicos para essa finalidade: esse
+// endpoint operacional não autoriza ROLE_ADMIN e, se autorizasse, incluiria médicos já vinculados.
+
+// Response 200 — Page<{ id: number, nome: string, crm: string }>
+{ content: Array<{ id: number, nome: string, crm: string }>, totalElements: number, totalPages: number, number: number, size: number }
+
+// Response 403 — perfil diferente de ROLE_ADMIN
 ```
 
 ---
