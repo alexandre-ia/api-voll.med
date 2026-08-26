@@ -45,9 +45,10 @@ A aplicação lê `.env` via `spring.config.import=optional:file:.env[.propertie
 
 - **`controller/`** — endpoints REST; delegam para services ou domain services
 - **`domain/<entidade>/`** — entidade JPA, repository, DTOs e regras de negócio internas
-- **`service/`** — serviços de aplicação (`MedicoService`, `PacienteService`, `ConsultaService`)
+- **`service/`** — serviços de aplicação (`MedicoService`, `PacienteService`, `ConsultaService`, `UsuarioService`)
 - **`infra/security/`** — filtro JWT (`SecurityFillter`), rate limiting (`RateLimitFilter`), configuração Spring Security (`SecurityConfigurations`), criação do admin inicial (`AdminInitializer`)
 - **`infra/exception/`** — handler global de erros (`TratadorDeErros`)
+- **`exception/`** — exceções de domínio (`ValidacaoException` → 400, `ConflitoException` → 409)
 - **`docs/PLANEJAMENTO.md`** — roadmap de funcionalidades planejadas
 
 ### Fluxo de autenticação
@@ -73,7 +74,7 @@ public FilterRegistrationBean<SecurityFillter> securityFillterRegistration(Secur
 
 ### Perfis de usuário
 
-- `ROLE_ADMIN` — administração técnica e usuários via `POST /auth/cadastro` e `GET /auth/usuarios`; não acessa dados clínicos nem cadastros operacionais por padrão
+- `ROLE_ADMIN` — administração técnica e usuários via `POST /auth/cadastro`, `GET /auth/usuarios` e `GET /auth/medicos-disponiveis` (médicos ativos ainda sem usuário vinculado, para o formulário de cadastro); não acessa dados clínicos nem cadastros operacionais por padrão, inclusive `GET /medicos`
 - `ROLE_FUNCIONARIO` — operação da clínica, cadastros, agenda, convênios e leitura operacional necessária
 - `ROLE_MEDICO` — atendimento clínico; vê apenas dados assistenciais vinculados ao médico logado e acessa IA clínica
 - `ROLE_AUDITOR` / `ROLE_GESTOR` — leitura ampla, auditoria LGPD e relatórios sensíveis, sempre com rastreabilidade
@@ -195,7 +196,7 @@ frontend/src/
 | `/certificates` | Atestados | privada |
 | `/specialties` | Especialidades | privada |
 | `/insurance` | Convênios | privada |
-| `/users` | Usuários | privada; backend restringe a `ROLE_ADMIN` |
+| `/users` | Usuários | `AdminRoute` (frontend) + backend restringem a `ROLE_ADMIN` |
 | `/availability` | Disponibilidade médica | privada, não ADMIN |
 | `/audit` | Auditoria LGPD | `ROLE_AUDITOR`/`ROLE_GESTOR` |
 | `/clinical-ai` | IA Clínica | `ROLE_MEDICO` |
@@ -210,4 +211,10 @@ Backend libera `localhost:3000`, `localhost:5173`, `localhost:5174` e domínios 
 
 ## Planejamento de evolução
 
-Backend completo até V25. Frontend conectado à API real, incluindo IA clínica, emissão de atestados para `ROLE_MEDICO` e dashboard operacional com métricas reais. Dependências frontend auditadas com `npm audit` sem vulnerabilidades conhecidas. Próximo passo possível: otimização de bundle.
+Backend completo até V25. Frontend conectado à API real, incluindo IA clínica, emissão de atestados para `ROLE_MEDICO` e dashboard operacional com métricas reais. Próximo passo possível: otimização de bundle.
+
+### Fase 1 do plano de correções (concluída)
+
+Corrigido o bloqueio de cadastro de usuário médico: `ROLE_ADMIN` recebia `403` de `GET /medicos` (endpoint operacional) e o frontend descartava o erro silenciosamente, deixando o seletor de médicos sempre vazio. Solução: endpoint dedicado `GET /auth/medicos-disponiveis` (só ADMIN, só médicos ativos sem usuário), `UsuarioService` com `@Transactional` e bloqueio pessimista (`findByIdComBloqueio`) no vínculo médico↔usuário, e estados explícitos de carregando/vazio/erro/retry em `Users.tsx`. Ver `docs/DECISOES_TECNICAS.md` para detalhes e pendências.
+
+Dependência frontend com vulnerabilidade conhecida: `npm audit` reporta 1 alta em `nanoid` (transitiva); correção não aplicada nesta fase por estar fora do escopo do bugfix.

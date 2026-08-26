@@ -10,7 +10,7 @@ Sistema Fullstack para gerenciamento de clínica médica, desenvolvido a partir 
 * Backend em Spring Boot com regras de negócio avançadas
 * Frontend em React conectado à API real
 * Integração com IA clínica (Anthropic API)
-* 143 testes automatizados no backend
+* 157 testes automatizados no backend
 * Arquitetura organizada e documentada
 
 ---
@@ -208,7 +208,7 @@ cd backend
 ./mvnw test
 ```
 
-✔️ Suite atual do backend: **143 testes**
+✔️ Suite atual do backend: **157 testes**
 
 ---
 
@@ -237,7 +237,8 @@ Perfis principais:
 
 * Backend completo até a migration `V25`
 * Frontend conectado à API real, incluindo IA clínica
-* Próximos focos sugeridos: otimização de bundle e testes E2E smoke
+* Fase 1 do plano de correções concluída: vínculo de usuário médico (`GET /auth/medicos-disponiveis`, cadastro transacional com lock pessimista) — ver `docs/DECISOES_TECNICAS.md`
+* Próximos focos sugeridos: otimização de bundle, testes E2E smoke e itens listados em "Pendências conhecidas" (`docs/DECISOES_TECNICAS.md`)
 
 ---
 
